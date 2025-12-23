@@ -165,9 +165,21 @@ export default function App() {
   });
   useEffect(() => { localStorage.setItem('sanctuaire_journal', JSON.stringify(journalEntries)); }, [journalEntries]);
 
+  // INITIALISATION DU THÈME AVEC DÉTECTION DU SYSTÈME
   const [theme, setTheme] = useState(() => {
-    try { const saved = localStorage.getItem('sanctuaire_theme'); return saved ? JSON.parse(saved) : 'light'; } catch (e) { return 'light'; }
+    try { 
+      const saved = localStorage.getItem('sanctuaire_theme'); 
+      if (saved) {
+        return JSON.parse(saved);
+      }
+      // Si aucune préférence sauvegardée, on regarde le système
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
+      return 'light'; 
+    } catch (e) { return 'light'; }
   });
+  
   useEffect(() => { localStorage.setItem('sanctuaire_theme', JSON.stringify(theme)); }, [theme]);
 
   // Initialisation intelligente des étapes
