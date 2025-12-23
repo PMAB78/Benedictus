@@ -40,31 +40,30 @@ Je respire paisiblement.`,
         Allons à la rencontre de Dieu qui nous attend,<br />
         faisons un beau et lent signe de croix et disons :<br /><br />
         
-        {/* Police plus lisible (text-base) et adaptative (md:text-lg) */}
-        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1 leading-snug text-base md:text-lg">
+        {/* Marges et tailles optimisées pour tenir sur un écran mobile sans scroll */}
+        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           je crois que Tu es là, que Tu m’attends, dans le fond de mon cœur »
         </span>
-        {/* Commentaire plus lisible (text-sm) mais gris pour la discrétion */}
-        <span className="text-xs md:text-sm text-stone-500 dark:text-stone-400 block mb-2 italic">(... acte personnel de foi, d’adoration, de confiance …)</span>
+        <span className="text-[10px] text-stone-500 dark:text-stone-400 block mb-3">(... acte personnel de foi, d’adoration, de confiance …)</span>
 
-        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1 leading-snug text-base md:text-lg">
+        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           prends pitié de moi dans le fond de mon cœur »
         </span>
-        <span className="text-xs md:text-sm text-stone-500 dark:text-stone-400 block mb-2 italic">(... un acte personnel de dépendance, de repentance …)</span>
+        <span className="text-[10px] text-stone-500 dark:text-stone-400 block mb-3">(... un acte personnel de dépendance, de repentance …)</span>
 
-        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1 leading-snug text-base md:text-lg">
+        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
-          (.... acte personnel d’appel de l’Esprit-Saint …) »
+          Envoie ton Esprit tout au fond de mon cœur »
         </span>
-        <span className="text-xs md:text-sm text-stone-500 dark:text-stone-400 block mb-2 italic">(... viens Esprit Saint …)</span>
+        <span className="text-[10px] text-stone-500 dark:text-stone-400 block mb-3">(... acte personnel d’appel de l’Esprit-Saint …)</span>
 
-        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1 leading-snug text-base md:text-lg">
+        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           je veux ce que tu veux dans le fond de mon cœur »
         </span>
-        <span className="text-xs md:text-sm text-stone-500 dark:text-stone-400 block mb-0 italic">(... acte personnel d’abandon à la Volonté divine …)</span>
+        <span className="text-[10px] text-stone-500 dark:text-stone-400 block mb-0">(... acte personnel d’abandon à la Volonté divine …)</span>
       </>
     ),
     defaultDuration: 180 
