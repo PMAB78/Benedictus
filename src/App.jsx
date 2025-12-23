@@ -152,24 +152,19 @@ export default function App() {
   });
   useEffect(() => { localStorage.setItem('sanctuaire_theme', JSON.stringify(theme)); }, [theme]);
 
-  // Initialisation intelligente des étapes :
-  // On charge les durées depuis le stockage, mais on garde le contenu (texte/JSX) depuis le code.
+  // Initialisation intelligente des étapes
   const [stepsConfig, setStepsConfig] = useState(() => {
     try {
-      // On essaie de récupérer uniquement les durées sauvegardées
       const savedDurations = JSON.parse(localStorage.getItem('sanctuaire_durations') || '{}');
-      
       return STEPS_CONTENT.map(step => ({
         ...step,
         duration: savedDurations[step.id] || step.defaultDuration
       }));
     } catch (e) {
-      // En cas d'erreur ou de première visite, on utilise les valeurs par défaut
       return STEPS_CONTENT.map(step => ({ ...step, duration: step.defaultDuration }));
     }
   });
 
-  // On sauvegarde uniquement les durées (id -> duration) pour ne pas casser le JSX au rechargement
   useEffect(() => {
     const durationsToSave = stepsConfig.reduce((acc, step) => {
       acc[step.id] = step.duration;
@@ -184,12 +179,12 @@ export default function App() {
     <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'bg-stone-900 text-stone-100' : 'bg-stone-50 text-stone-800'}`}>
       
       {/* Header */}
-      <header className="px-6 py-6 flex justify-between items-start gap-4 max-w-2xl mx-auto">
+      <header className="px-6 py-6 flex justify-between items-start gap-6 max-w-2xl mx-auto">
         
-        {/* Gauche : Boutons + Verset */}
-        <div className="flex-1 flex flex-col items-start gap-2">
+        {/* Gauche : Texte (Boutons + Titre + Citation) */}
+        <div className="flex-1 flex flex-col items-start gap-4">
           
-          {/* Boutons d'action déplacés à gauche */}
+          {/* Boutons d'action */}
           <div className="flex gap-2">
              <button 
               onClick={() => setView('settings')}
@@ -205,41 +200,43 @@ export default function App() {
             </button>
           </div>
 
-          {/* Titre (Verset) */}
-          <div className="cursor-pointer pt-1" onClick={goHome}>
+          {/* Titre (Déplacé du Main vers le Header) */}
+          <div className="text-left">
+              <h1 className={`text-3xl font-bold mb-1 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-900'}`}>Vie d'oraison</h1>
+              <p className={`text-sm italic ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>Vive Jésus dans nos cœurs à jamais</p>
+          </div>
+
+          {/* Citation */}
+          <div className="cursor-pointer" onClick={goHome}>
             <blockquote className={`font-serif text-sm italic leading-relaxed border-l-2 pl-3 ${theme === 'dark' ? 'text-stone-300 border-indigo-500' : 'text-stone-600 border-indigo-300'}`}>
               "Voici que je me tiens à la porte, et je frappe. Si quelqu’un entend ma voix et ouvre la porte, j’entrerai chez lui ; je prendrai mon repas avec lui, et lui avec moi."
             </blockquote>
-            {/* Rétablissement du mt-1 pour espacer la référence de la citation */}
             <div className={`text-xs font-bold mt-1 pl-3 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-700'}`}>
               Ap 3,20
             </div>
           </div>
         </div>
-        
-        {/* Droite: Logo seul */}
+
+        {/* Droite : Logo (Agrandi) */}
         <div className="shrink-0">
           <img 
             src="/logo.jpg" 
             alt="Logo" 
-            className={`h-48 w-auto rounded-lg shadow-md border ${theme === 'dark' ? 'border-stone-700' : 'border-stone-200'}`}
+            // Logo agrandi (h-72)
+            className={`h-72 w-auto rounded-lg shadow-md border ${theme === 'dark' ? 'border-stone-700' : 'border-stone-200'}`}
             onError={(e) => {
                e.target.style.display = 'none';
             }}
           />
         </div>
+        
       </header>
 
       {/* Main Content */}
-      <main className="max-w-2xl mx-auto px-4 pb-20 pt-4">
+      <main className="max-w-2xl mx-auto px-4 pb-20">
         {view === 'home' && (
-          <div className="space-y-8 animate-fade-in">
-            {/* Réduction du padding-top pour rapprocher le titre du Header */}
-            <div className="text-center pb-8 pt-0">
-              <h1 className={`text-3xl font-bold mb-3 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-900'}`}>Vie d'oraison</h1>
-              <p className={theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}>Vive Jésus dans nos cœurs à jamais</p>
-            </div>
-
+          <div className="space-y-8 animate-fade-in mt-4">
+            
             <div className="grid gap-4">
               <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group" >
                 <div onClick={() => setView('guided')} className="flex items-center gap-4">
@@ -248,7 +245,6 @@ export default function App() {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg">Oraison guidée</h3>
-                    {/* Utilisation de <br /> pour les retours à la ligne */}
                     <p className={`text-sm ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>
                       Un parcours balisé : Se préparer, Dieu m'attend,<br />
                       à la rencontre du Christ - accueillir son Amour - m'offrir - réagir,<br />
