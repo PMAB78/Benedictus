@@ -106,7 +106,6 @@ const Button = ({ children, onClick, variant = 'primary', className = '' }) => {
   );
 };
 
-// Modification ici : ajout des classes dark:bg-stone-800 et dark:border-stone-700
 const Card = ({ children, className = '' }) => (
   <div className={`bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700 p-6 ${className}`}>
     {children}
@@ -161,7 +160,8 @@ export default function App() {
   const goHome = () => setView('home');
 
   return (
-    <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'bg-stone-900 text-stone-100' : 'bg-stone-50 text-stone-800'}`}>
+    // CORRECTION ICI : Ajout de la classe "dark" dans la condition
+    <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'dark bg-stone-900 text-stone-100' : 'bg-stone-50 text-stone-800'}`}>
       
       {/* Header */}
       <header className="px-6 py-4 flex justify-between items-center max-w-2xl mx-auto">
