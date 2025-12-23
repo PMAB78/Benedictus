@@ -38,30 +38,31 @@ Je respire paisiblement.`,
     description: (
       <>
         {/* Ajout de '!' pour forcer les couleurs contre le mode sombre automatique de Samsung */}
-        <span className="text-base text-stone-900 dark:!text-white block mb-1 leading-tight">
+        {/* Utilisation de text-[15px] comme intermédiaire entre sm (14px) et base (16px) */}
+        <span className="text-[15px] text-stone-900 dark:!text-white block mb-1 leading-tight">
         Allons à la rencontre de Dieu qui nous attend,<br />
         faisons un beau et lent signe de croix et disons :<br /><br />
         </span>
         
-        <span className="text-base italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-[15px] italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           je crois que Tu es là, que Tu m’attends, dans le fond de mon cœur »
         </span>
         <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(... acte personnel de foi, d’adoration, de confiance …)</span>
 
-        <span className="text-base italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-[15px] italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           prends pitié de moi dans le fond de mon cœur »
         </span>
         <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(... un acte personnel de dépendance, de repentance …)</span>
 
-        <span className="text-base italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-[15px] italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           Envoie ton Esprit tout au fond de mon cœur »
         </span>
         <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(... acte personnel d’appel de l’Esprit-Saint …)</span>
 
-        <span className="text-base italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-[15px] italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           je veux ce que tu veux dans le fond de mon cœur »
         </span>
