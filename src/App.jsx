@@ -181,8 +181,8 @@ export default function App() {
         {view === 'home' && (
           <div className="space-y-8 animate-fade-in">
             <div className="text-center py-8">
-              <h1 className={`text-3xl font-bold mb-3 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-900'}`}>Bienvenue dans votre espace intérieur</h1>
-              <p className={theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}>Prenez le temps de vous arrêter et de respirer.</p>
+              <h1 className={`text-3xl font-bold mb-3 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-900'}`}>Balises d'oraison</h1>
+              <p className={theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}>Notre Seigneur Jésus-Christ nous attend, allons-nous Lui ouvrir la porte ?</p>
             </div>
 
             <div className="grid gap-4">
