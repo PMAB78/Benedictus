@@ -104,13 +104,18 @@ const playBell = () => {
     const gainNode = ctx.createGain();
     osc.connect(gainNode);
     gainNode.connect(ctx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(432, ctx.currentTime);
+    
+    // Modification pour un son de "clochette"
+    osc.type = 'sine'; // Onde sinusoïdale pure
+    osc.frequency.setValueAtTime(2000, ctx.currentTime); // Fréquence haute (2000Hz) pour le côté "cristallin"
+    
+    // Enveloppe sonore plus courte et percutante
     gainNode.gain.setValueAtTime(0, ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.1);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3);
+    gainNode.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.05); // Attaque très rapide
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7); // Déclin très rapide (0.7s)
+    
     osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 3);
+    osc.stop(ctx.currentTime + 0.7);
   } catch (e) { console.error("Erreur son", e); }
 };
 
@@ -119,7 +124,7 @@ const playBellsSequence = (count) => {
   for (let i = 0; i < count; i++) {
     setTimeout(() => {
       playBell();
-    }, i * 3500); // 3.5 secondes entre chaque coup
+    }, i * 2000); // Réduit l'intervalle à 2s pour que les clochettes soient plus proches
   }
 };
 
@@ -353,7 +358,7 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
       playBellsSequence(dongsCount);
 
       // Calcul du délai avant transition : temps de la séquence + 1 petite seconde de silence
-      const transitionDelay = (dongsCount * 3500) + 1000;
+      const transitionDelay = (dongsCount * 2000) + 1000;
 
       transitionTimeoutRef.current = setTimeout(() => {
          if (stepIndex < stepsConfig.length - 1) {
