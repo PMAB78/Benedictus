@@ -38,31 +38,31 @@ Je respire paisiblement.`,
     description: (
       <>
         {/* Ajout de '!' pour forcer les couleurs contre le mode sombre automatique de Samsung */}
-        {/* Utilisation de text-[15px] comme intermédiaire entre sm (14px) et base (16px) */}
-        <span className="text-[15px] text-stone-900 dark:!text-white block mb-1 leading-tight">
+        {/* Utilisation de text-sm partout pour uniformiser */}
+        <span className="text-sm text-stone-900 dark:!text-white block mb-1 leading-tight">
         Allons à la rencontre de Dieu qui nous attend,<br />
         faisons un beau et lent signe de croix et disons :<br /><br />
         </span>
         
-        <span className="text-[15px] italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           je crois que Tu es là, que Tu m’attends, dans le fond de mon cœur »
         </span>
         <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(... acte personnel de foi, d’adoration, de confiance …)</span>
 
-        <span className="text-[15px] italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           prends pitié de moi dans le fond de mon cœur »
         </span>
         <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(... un acte personnel de dépendance, de repentance …)</span>
 
-        <span className="text-[15px] italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           Envoie ton Esprit tout au fond de mon cœur »
         </span>
         <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(... acte personnel d’appel de l’Esprit-Saint …)</span>
 
-        <span className="text-[15px] italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           je veux ce que tu veux dans le fond de mon cœur »
         </span>
@@ -439,12 +439,12 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
         </div>
 
         {/* CONTENU CENTRAL : justify-center pour centrer verticalement le bloc texte+minuteur */}
-        <div className="flex-1 w-full px-4 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start min-h-0 pt-2 pb-8">
+        <div className="flex-1 w-full px-4 overflow-y-auto custom-scrollbar flex flex-col items-center justify-center min-h-0 pt-1"> {/* pt-2 réduit à pt-1 */}
           {currentStep.id === 'reading' ? (
             <div className="w-full max-w-lg mx-auto py-2 animate-fade-in-up my-auto">
               <div className={`p-4 rounded-2xl border shadow-sm ${theme === 'dark' ? 'bg-stone-900 border-stone-700' : 'bg-stone-50 border-stone-200'}`}>
                 {/* PRIERE: Indigo foncé jour, Jaune nuit */}
-                <p className={`font-serif text-base leading-relaxed text-center font-medium ${theme === 'dark' ? '!text-yellow-300' : 'text-indigo-800'}`}>"{selectedText.content}"</p>
+                <p className={`font-serif text-sm leading-relaxed text-center font-medium ${theme === 'dark' ? '!text-yellow-300' : 'text-indigo-800'}`}>"{selectedText.content}"</p>
                 {/* RESTE: Blanc nuit, Noir jour */}
                 <p className={`mt-2 text-xs font-medium text-center ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>— {selectedText.source}</p>
               </div>
@@ -459,7 +459,7 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
             // Utilisation de my-auto pour centrer verticalement SI il y a de la place, sinon scroll normal
             <div className="w-full max-w-lg mx-auto my-auto pt-2">
               {/* Optimisation pour mobile : text-base comme demandé, leading-snug */}
-              <div className={`text-base md:text-lg whitespace-pre-wrap leading-snug animate-fade-in text-center font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>
+              <div className={`text-sm whitespace-pre-wrap leading-snug animate-fade-in text-center font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>
                 {currentStep.description}
               </div>
             </div>
