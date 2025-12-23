@@ -111,6 +111,15 @@ const playBell = () => {
   } catch (e) { console.error("Erreur son", e); }
 };
 
+// Fonction helper pour jouer plusieurs fois
+const playBellsSequence = (count) => {
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      playBell();
+    }, i * 3500); // 3.5 secondes entre chaque coup
+  }
+};
+
 // --- Composants Utilitaires ---
 
 const Button = ({ children, onClick, variant = 'primary', className = '' }) => {
@@ -179,119 +188,125 @@ export default function App() {
   return (
     <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'bg-stone-900 text-stone-100' : 'bg-stone-50 text-stone-800'}`}>
       
-      {/* Header */}
-      <header className="px-6 py-6 flex justify-between items-start gap-6 max-w-2xl mx-auto">
-        
-        {/* Gauche : Texte (Boutons + Titre + Citation) */}
-        <div className="flex-1 flex flex-col items-start gap-4">
-          
-          {/* Boutons d'action */}
-          <div className="flex gap-2">
-             <button 
-              onClick={() => setView('settings')}
-              className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800 text-stone-400' : 'hover:bg-stone-200 text-stone-600'}`}
-            >
-              <Settings size={20} />
-            </button>
-            <button 
-              onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
-              className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800' : 'hover:bg-stone-200'}`}
-            >
-              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-            </button>
-          </div>
-
-          {/* Titre */}
-          <div className="text-left">
-              <h1 className={`text-3xl font-bold mb-1 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-900'}`}>Vie d'oraison</h1>
-              <p className={`text-sm italic ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>Vive Jésus dans nos cœurs à jamais</p>
-          </div>
-
-          {/* Citation */}
-          <div className="cursor-pointer" onClick={goHome}>
-            <blockquote className={`font-serif text-sm italic leading-relaxed border-l-2 pl-3 ${theme === 'dark' ? 'text-stone-300 border-indigo-500' : 'text-stone-600 border-indigo-300'}`}>
-              "Voici que je me tiens à la porte, et je frappe. Si quelqu’un entend ma voix et ouvre la porte, j’entrerai chez lui ; je prendrai mon repas avec lui, et lui avec moi."
-            </blockquote>
-            <div className={`text-xs font-bold mt-1 pl-3 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-700'}`}>
-              Ap 3,20
-            </div>
-          </div>
-        </div>
-
-        {/* Droite : Logo Grand Format */}
-        <div className="shrink-0">
-          <img 
-            src="/logo.jpg" 
-            alt="Logo" 
-            className={`h-72 w-auto rounded-lg shadow-md border ${theme === 'dark' ? 'border-stone-700' : 'border-stone-200'}`}
-            onError={(e) => {
-               e.target.style.display = 'none';
-            }}
-          />
-        </div>
-        
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-2xl mx-auto px-4 pb-20 pt-4">
-        {view === 'home' && (
-          <div className="space-y-8 animate-fade-in mt-4">
+      {/* Affichage Conditionnel : Si Guided, on prend tout l'écran, sinon on affiche Header + Main */}
+      {view === 'guided' ? (
+        <GuidedSession onExit={goHome} stepsConfig={stepsConfig} theme={theme} />
+      ) : (
+        <>
+          {/* Header */}
+          <header className="px-6 py-6 flex justify-between items-start gap-6 max-w-2xl mx-auto">
             
-            <div className="grid gap-4">
-              <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group" >
-                <div onClick={() => setView('guided')} className="flex items-center gap-4">
-                  <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-100 text-indigo-600'}`}>
-                    <BookOpen size={24} />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg">Oraison guidée</h3>
-                    <p className={`text-sm ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>
-                      Un parcours balisé : préparation, entrée corps et fin de l'oraison.
-                    </p>
-                  </div>
-                  <ChevronRight className="text-stone-300" />
-                </div>
-              </Card>
+            {/* Gauche : Texte (Boutons + Titre + Citation) */}
+            <div className="flex-1 flex flex-col items-start gap-4">
+              
+              {/* Boutons d'action */}
+              <div className="flex gap-2">
+                 <button 
+                  onClick={() => setView('settings')}
+                  className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800 text-stone-400' : 'hover:bg-stone-200 text-stone-600'}`}
+                >
+                  <Settings size={20} />
+                </button>
+                <button 
+                  onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
+                  className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800' : 'hover:bg-stone-200'}`}
+                >
+                  {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+                </button>
+              </div>
 
-              <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group">
-                 <div onClick={() => setView('free')} className="flex items-center gap-4">
-                  <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-teal-900 text-teal-300' : 'bg-teal-100 text-teal-600'}`}>
-                    <Clock size={24} />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg">Minuteur Silencieux</h3>
-                    <p className={`text-sm ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>Gérez votre temps de prière en toute simplicité.</p>
-                  </div>
-                  <ChevronRight className="text-stone-300" />
-                </div>
-              </Card>
+              {/* Titre */}
+              <div className="text-left">
+                  <h1 className={`text-3xl font-bold mb-1 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-900'}`}>Vie d'oraison</h1>
+                  <p className={`text-sm italic ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>Vive Jésus dans nos cœurs à jamais</p>
+              </div>
 
-              <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group">
-                <div onClick={() => setView('journal')} className="flex items-center gap-4">
-                  <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-amber-900 text-amber-300' : 'bg-amber-100 text-amber-600'}`}>
-                    <PenTool size={24} />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg">Carnet Spirituel</h3>
-                    <p className={`text-sm ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>Notez vos grâces, résolutions et pensées.</p>
-                  </div>
-                  <ChevronRight className="text-stone-300" />
+              {/* Citation */}
+              <div className="cursor-pointer" onClick={goHome}>
+                <blockquote className={`font-serif text-sm italic leading-relaxed border-l-2 pl-3 ${theme === 'dark' ? 'text-stone-300 border-indigo-500' : 'text-stone-600 border-indigo-300'}`}>
+                  "Voici que je me tiens à la porte, et je frappe. Si quelqu’un entend ma voix et ouvre la porte, j’entrerai chez lui ; je prendrai mon repas avec lui, et lui avec moi."
+                </blockquote>
+                <div className={`text-xs font-bold mt-1 pl-3 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-700'}`}>
+                  Ap 3,20
                 </div>
-              </Card>
+              </div>
             </div>
 
-            <div className={`mt-8 p-6 rounded-2xl text-center italic border ${theme === 'dark' ? 'bg-stone-800 text-stone-300 border-stone-700' : 'bg-stone-100 text-stone-600 border-stone-200'}`}>
-              "{TEXTS[Math.floor(Math.random() * TEXTS.length)].content}"
+            {/* Droite : Logo Grand Format */}
+            <div className="shrink-0">
+              <img 
+                src="/logo.jpg" 
+                alt="Logo" 
+                className={`h-72 w-auto rounded-lg shadow-md border ${theme === 'dark' ? 'border-stone-700' : 'border-stone-200'}`}
+                onError={(e) => {
+                   e.target.style.display = 'none';
+                }}
+              />
             </div>
-          </div>
-        )}
+            
+          </header>
 
-        {view === 'guided' && <GuidedSession onExit={goHome} stepsConfig={stepsConfig} theme={theme} />}
-        {view === 'free' && <FreeTimer onExit={goHome} theme={theme} />}
-        {view === 'journal' && <Journal entries={journalEntries} setEntries={setJournalEntries} onExit={goHome} theme={theme} />}
-        {view === 'settings' && <SettingsView stepsConfig={stepsConfig} setStepsConfig={setStepsConfig} onExit={goHome} theme={theme} />}
+          {/* Main Content */}
+          <main className="max-w-2xl mx-auto px-4 pb-20 pt-4">
+            {view === 'home' && (
+              <div className="space-y-8 animate-fade-in mt-4">
+                
+                <div className="grid gap-4">
+                  <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group" >
+                    <div onClick={() => setView('guided')} className="flex items-center gap-4">
+                      <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-100 text-indigo-600'}`}>
+                        <BookOpen size={24} />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg">Oraison guidée</h3>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>
+                          Un parcours balisé : préparation, entrée corps et fin de l'oraison.
+                        </p>
+                      </div>
+                      <ChevronRight className="text-stone-300" />
+                    </div>
+                  </Card>
 
-      </main>
+                  <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group">
+                     <div onClick={() => setView('free')} className="flex items-center gap-4">
+                      <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-teal-900 text-teal-300' : 'bg-teal-100 text-teal-600'}`}>
+                        <Clock size={24} />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg">Minuteur Silencieux</h3>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>Gérez votre temps de prière en toute simplicité.</p>
+                      </div>
+                      <ChevronRight className="text-stone-300" />
+                    </div>
+                  </Card>
+
+                  <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group">
+                    <div onClick={() => setView('journal')} className="flex items-center gap-4">
+                      <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-amber-900 text-amber-300' : 'bg-amber-100 text-amber-600'}`}>
+                        <PenTool size={24} />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg">Carnet Spirituel</h3>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>Notez vos grâces, résolutions et pensées.</p>
+                      </div>
+                      <ChevronRight className="text-stone-300" />
+                    </div>
+                  </Card>
+                </div>
+
+                <div className={`mt-8 p-6 rounded-2xl text-center italic border ${theme === 'dark' ? 'bg-stone-800 text-stone-300 border-stone-700' : 'bg-stone-100 text-stone-600 border-stone-200'}`}>
+                  "{TEXTS[Math.floor(Math.random() * TEXTS.length)].content}"
+                </div>
+              </div>
+            )}
+
+            {view === 'free' && <FreeTimer onExit={goHome} theme={theme} />}
+            {view === 'journal' && <Journal entries={journalEntries} setEntries={setJournalEntries} onExit={goHome} theme={theme} />}
+            {view === 'settings' && <SettingsView stepsConfig={stepsConfig} setStepsConfig={setStepsConfig} onExit={goHome} theme={theme} />}
+
+          </main>
+        </>
+      )}
     </div>
   );
 }
@@ -301,7 +316,8 @@ export default function App() {
 function GuidedSession({ onExit, stepsConfig, theme }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(stepsConfig[0].duration);
-  const [isActive, setIsActive] = useState(false); 
+  // MODIFICATION: Activé par défaut pour démarrage immédiat
+  const [isActive, setIsActive] = useState(true); 
   const [selectedText, setSelectedText] = useState(TEXTS[0]);
   const transitionTimeoutRef = useRef(null);
   
@@ -311,13 +327,30 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
   useEffect(() => { setSelectedText(TEXTS[Math.floor(Math.random() * TEXTS.length)]); }, []);
   useEffect(() => { return () => { if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current); }; }, [stepIndex]);
 
+  // MODIFICATION: Dong d'ouverture unique au montage
+  useEffect(() => {
+    playBell(); // 1 Dong dès l'arrivée sur l'écran (début étape 1)
+  }, []);
+
   useEffect(() => {
     let interval = null;
     if (isActive && timeLeft > 0) {
       interval = setInterval(() => { setTimeLeft(time => time - 1); }, 1000);
     } else if (timeLeft === 0 && isActive) {
       setIsActive(false);
-      playBell();
+      
+      // MODIFICATION: Logique des dongs selon l'étape
+      let dongsCount = 0;
+      if (stepIndex === 0) dongsCount = 2; // Fin étape 1 (Corps)
+      else if (stepIndex === 1) dongsCount = 3; // Fin étape 2 (Entrée)
+      else if (stepIndex === 2) dongsCount = 2; // Fin étape 3 (Rencontre)
+      else if (stepIndex === 3) dongsCount = 1; // Fin étape 4 (Résolution)
+
+      playBellsSequence(dongsCount);
+
+      // Calcul du délai avant transition : temps de la séquence + 1 petite seconde de silence
+      const transitionDelay = (dongsCount * 3500) + 1000;
+
       transitionTimeoutRef.current = setTimeout(() => {
          if (stepIndex < stepsConfig.length - 1) {
             const nextIdx = stepIndex + 1;
@@ -325,7 +358,7 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
             setTimeLeft(stepsConfig[nextIdx].duration);
             setIsActive(true); 
          } else { onExit(); }
-      }, 4000);
+      }, transitionDelay);
     }
     return () => { if (interval) clearInterval(interval); };
   }, [isActive, timeLeft, stepIndex, stepsConfig, onExit]);
@@ -355,7 +388,8 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
   const progress = ((stepIndex + 1) / stepsConfig.length) * 100;
 
   return (
-    <div className="flex flex-col h-[80vh]">
+    // Utilisation de h-screen pour prendre toute la hauteur en mode immersif
+    <div className="flex flex-col h-screen max-w-2xl mx-auto px-4 py-6">
       <div className="flex justify-between items-center mb-6">
         <button onClick={onExit} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-700' : 'hover:bg-stone-200'}`}>
           <X size={24} />
@@ -372,7 +406,8 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
            <h2 className={`text-xl font-serif mt-1 ${theme === 'dark' ? 'text-stone-100' : 'text-stone-800'}`}>{currentStep.title}</h2>
         </div>
 
-        <div className="flex-1 w-full px-4 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start min-h-0 pt-2">
+        {/* CONTENU CENTRAL : justify-center pour centrer verticalement le bloc texte+minuteur */}
+        <div className="flex-1 w-full px-4 overflow-y-auto custom-scrollbar flex flex-col items-center justify-center min-h-0 pt-2">
           {currentStep.id === 'reading' ? (
             <div className="w-full max-w-lg mx-auto py-2 animate-fade-in-up my-auto">
               <div className={`p-4 rounded-2xl border shadow-sm ${theme === 'dark' ? 'bg-stone-900 border-stone-700' : 'bg-stone-50 border-stone-200'}`}>
@@ -387,14 +422,16 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
               </button>
             </div>
           ) : (
-            <div className="w-full max-w-lg mx-auto mt-2">
+            <div className="w-full max-w-lg mx-auto mt-0">
+              {/* Optimisation pour mobile : text-xs, leading-snug */}
               <div className={`text-xs md:text-sm whitespace-pre-wrap leading-tight animate-fade-in text-center font-serif ${theme === 'dark' ? 'text-stone-300' : 'text-stone-700'}`}>
                 {currentStep.description}
               </div>
             </div>
           )}
 
-          <div className="py-2 flex justify-center items-center gap-4 shrink-0 mt-auto">
+          {/* Minuteur collé au texte (mt-1) et centré verticalement avec le texte */}
+          <div className="py-0 flex justify-center items-center gap-4 shrink-0 mt-2">
             <div className={`text-3xl md:text-4xl font-light tabular-nums tracking-tight opacity-80 ${theme === 'dark' ? 'text-indigo-200' : 'text-indigo-900'}`}>
               {formatTime(timeLeft)}
             </div>
