@@ -95,7 +95,6 @@ const Button = ({ children, onClick, variant = 'primary', className = '' }) => {
   );
 };
 
-// CORRECTION : Le composant Card gère maintenant sa couleur via JS pour éviter les conflits système
 const Card = ({ children, className = '', theme }) => {
   const isDark = theme === 'dark';
   return (
@@ -133,10 +132,19 @@ export default function App() {
       
       {/* Header */}
       <header className="px-6 py-4 flex justify-between items-center max-w-2xl mx-auto">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={goHome}>
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-            <Heart size={18} className="text-white" fill="currentColor" />
-          </div>
+        <div className="flex items-center gap-3 cursor-pointer" onClick={goHome}>
+          {/* Logo personnalisé */}
+          <img 
+            src="/logo.jpg" 
+            alt="Logo" 
+            className={`w-10 h-10 rounded-xl object-cover shadow-sm border ${theme === 'dark' ? 'border-stone-700' : 'border-stone-200'}`}
+            onError={(e) => {
+               // Fallback discret si l'image n'est pas trouvée
+               e.target.style.display = 'none';
+               e.target.nextSibling.style.display = 'flex'; // Affiche l'icône de secours si on en mettait une
+            }}
+          />
+          {/* Icône de secours cachée par défaut, visible si l'image plante (via JS custom si besoin) ou simple texte */}
           <span className="text-xl font-semibold tracking-tight">Sanctuaire</span>
         </div>
         
