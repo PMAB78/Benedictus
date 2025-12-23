@@ -115,12 +115,48 @@ const Card = ({ children, className = '' }) => (
 // --- Application Principale ---
 
 export default function App() {
-  const [view, setView] = useState('home'); // home, guided, free, journal, settings
-  const [journalEntries, setJournalEntries] = useState([]);
-  const [theme, setTheme] = useState('light'); // light, dark
-  const [stepsConfig, setStepsConfig] = useState(DEFAULT_STEPS); // Configuration dynamique des étapes
+  const [view, setView] = useState('home'); 
+  
+  // --- PERSISTANCE DES DONNÉES (LocalStorage) ---
 
-  // Navigation simple
+  // 1. Carnet
+  const [journalEntries, setJournalEntries] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sanctuaire_journal');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) { return []; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sanctuaire_journal', JSON.stringify(journalEntries));
+  }, [journalEntries]);
+
+  // 2. Thème
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sanctuaire_theme');
+      return saved ? JSON.parse(saved) : 'light';
+    } catch (e) { return 'light'; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sanctuaire_theme', JSON.stringify(theme));
+  }, [theme]);
+
+  // 3. Configuration des étapes
+  const [stepsConfig, setStepsConfig] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sanctuaire_steps');
+      return saved ? JSON.parse(saved) : DEFAULT_STEPS;
+    } catch (e) { return DEFAULT_STEPS; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sanctuaire_steps', JSON.stringify(stepsConfig));
+  }, [stepsConfig]);
+
+  // --- FIN PERSISTANCE ---
+
   const goHome = () => setView('home');
 
   return (
@@ -225,10 +261,9 @@ export default function App() {
 function GuidedSession({ onExit, stepsConfig, theme }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(stepsConfig[0].duration);
-  // Initialiser à true pour lancer le premier timer automatiquement, ou false si on préfère une intro. 
-  // Ici on laisse false pour la toute première étape, mais ensuite on enchaîne.
   const [isActive, setIsActive] = useState(false); 
   const [selectedText, setSelectedText] = useState(TEXTS[0]);
+  const transitionTimeoutRef = useRef(null); // Ref pour stocker le timeout
   
   const currentStep = stepsConfig[stepIndex];
   const isLastStep = stepIndex === stepsConfig.length - 1;
@@ -237,21 +272,30 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
     setSelectedText(TEXTS[Math.floor(Math.random() * TEXTS.length)]);
   }, []);
 
+  // Nettoyage du timeout si on change d'étape manuellement ou si on quitte
+  useEffect(() => {
+    return () => {
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+      }
+    };
+  }, [stepIndex]);
+
   useEffect(() => {
     let interval = null;
-    let transitionTimeout = null;
 
     if (isActive && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft(time => time - 1);
       }, 1000);
     } else if (timeLeft === 0 && isActive) {
-      // Le timer vient de se terminer
+      // Fin du timer
       setIsActive(false);
       playBell();
 
-      // TRANSITION AUTOMATIQUE APRÈS DÉLAI
-      transitionTimeout = setTimeout(() => {
+      // On programme la suite. L'utilisation de useRef empêche ce timeout
+      // d'être annulé par le redrendu causé par setIsActive(false).
+      transitionTimeoutRef.current = setTimeout(() => {
          if (stepIndex < stepsConfig.length - 1) {
             const nextIdx = stepIndex + 1;
             setStepIndex(nextIdx);
@@ -260,14 +304,15 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
          } else {
             onExit();
          }
-      }, 4000); // 4 secondes de pause pour laisser résonner la cloche
+      }, 4000);
     }
     
     return () => {
       if (interval) clearInterval(interval);
-      if (transitionTimeout) clearTimeout(transitionTimeout);
+      // IMPORTANT: Ne PAS nettoyer transitionTimeoutRef ici, 
+      // sinon le changement d'état (isActive=false) annulera la transition.
     };
-  }, [isActive, timeLeft, stepIndex, stepsConfig, onExit]); // Ajout des dépendances pour la transition
+  }, [isActive, timeLeft, stepIndex, stepsConfig, onExit]);
 
   const toggleTimer = () => setIsActive(!isActive);
 
@@ -276,7 +321,7 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
       const nextIdx = stepIndex + 1;
       setStepIndex(nextIdx);
       setTimeLeft(stepsConfig[nextIdx].duration);
-      setIsActive(true); // AUTO-START : On lance automatiquement le timer de l'étape suivante
+      setIsActive(true); // AUTO-START
     } else {
       onExit();
     }
@@ -287,7 +332,7 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
       const prevIdx = stepIndex - 1;
       setStepIndex(prevIdx);
       setTimeLeft(stepsConfig[prevIdx].duration);
-      setIsActive(false); // On met en pause si on revient en arrière
+      setIsActive(false);
     }
   };
 
@@ -380,10 +425,16 @@ function SettingsView({ stepsConfig, setStepsConfig, onExit }) {
   const updateDuration = (index, change) => {
     const newSteps = [...stepsConfig];
     const currentDuration = newSteps[index].duration;
-    // Incréments de 1 minute (60s), minimum 1 minute
-    const newDuration = Math.max(60, currentDuration + change * 60);
+    // Incréments de 10 secondes, minimum 10 secondes
+    const newDuration = Math.max(10, currentDuration + change * 10);
     newSteps[index].duration = newDuration;
     setStepsConfig(newSteps);
+  };
+
+  const formatDurationSetting = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}m ${s < 10 ? '0' : ''}${s}`;
   };
 
   return (
@@ -402,7 +453,7 @@ function SettingsView({ stepsConfig, setStepsConfig, onExit }) {
             <div key={step.id} className="flex items-center justify-between pb-4 border-b border-stone-100 dark:border-stone-700 last:border-0">
               <div className="flex-1">
                 <div className="font-medium text-stone-800 dark:text-stone-200">{step.title}</div>
-                <div className="text-xs text-stone-400 mt-1">Par défaut : {DEFAULT_STEPS[index].duration / 60} min</div>
+                <div className="text-xs text-stone-400 mt-1">Par défaut : {formatDurationSetting(DEFAULT_STEPS[index].duration)}</div>
               </div>
               
               <div className="flex items-center gap-3">
@@ -412,8 +463,8 @@ function SettingsView({ stepsConfig, setStepsConfig, onExit }) {
                 >
                   <Minus size={16} />
                 </button>
-                <div className="w-16 text-center font-mono text-lg font-medium text-indigo-600 dark:text-indigo-400">
-                  {Math.floor(step.duration / 60)} <span className="text-xs text-stone-400">min</span>
+                <div className="w-20 text-center font-mono text-lg font-medium text-indigo-600 dark:text-indigo-400">
+                   {formatDurationSetting(step.duration)}
                 </div>
                 <button 
                   onClick={() => updateDuration(index, 1)}
