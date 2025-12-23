@@ -106,8 +106,9 @@ const Button = ({ children, onClick, variant = 'primary', className = '' }) => {
   );
 };
 
+// Modification ici : ajout des classes dark:bg-stone-800 et dark:border-stone-700
 const Card = ({ children, className = '' }) => (
-  <div className={`bg-white rounded-2xl shadow-sm border border-stone-100 p-6 ${className}`}>
+  <div className={`bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700 p-6 ${className}`}>
     {children}
   </div>
 );
