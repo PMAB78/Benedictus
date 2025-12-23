@@ -38,32 +38,32 @@ Je respire paisiblement.`,
     description: (
       <>
         Allons à la rencontre de Dieu qui nous attend,<br />
-        faisons un beau et lent signe de croix et disons (par exemple):<br /><br />
+        faisons un beau et lent signe de croix et disons :<br /><br />
         
-        {/* Police réduite et marges compressées pour mobile */}
-        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1">
+        {/* Marges et tailles optimisées pour tenir sur un écran mobile sans scroll */}
+        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           je crois que Tu es là, que Tu m’attends, dans le fond de mon cœur »
         </span>
-        <span className="text-[10px] md:text-xs text-stone-500 dark:text-stone-400 block mb-2">(... acte personnel de foi, d’adoration, de confiance …)</span>
+        <span className="text-[10px] text-stone-500 dark:text-stone-400 block mb-2">(... acte personnel de foi, d’adoration, de confiance …)</span>
 
-        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1">
+        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           prends pitié de moi dans le fond de mon cœur »
         </span>
-        <span className="text-[10px] md:text-xs text-stone-500 dark:text-stone-400 block mb-2">(... un acte personnel de dépendance, de repentance …)</span>
+        <span className="text-[10px] text-stone-500 dark:text-stone-400 block mb-2">(... un acte personnel de dépendance, de repentance …)</span>
 
-        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1">
+        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           (.... acte personnel d’appel de l’Esprit-Saint …) »
         </span>
-        <span className="text-[10px] md:text-xs text-stone-500 dark:text-stone-400 block mb-2">(... viens Esprit Saint …)</span>
+        <span className="text-[10px] text-stone-500 dark:text-stone-400 block mb-2">(... viens Esprit Saint …)</span>
 
-        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1">
+        <span className="italic text-indigo-600 dark:text-indigo-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           je veux ce que tu veux dans le fond de mon cœur »
         </span>
-        <span className="text-[10px] md:text-xs text-stone-500 dark:text-stone-400 block mb-0">(... acte personnel d’abandon à la Volonté divine …)</span>
+        <span className="text-[10px] text-stone-500 dark:text-stone-400 block mb-0">(... acte personnel d’abandon à la Volonté divine …)</span>
       </>
     ),
     defaultDuration: 180 
@@ -180,25 +180,22 @@ export default function App() {
     <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'bg-stone-900 text-stone-100' : 'bg-stone-50 text-stone-800'}`}>
       
       {/* Header */}
-      {/* Modification : Padding réduit sur mobile (py-4) et gap réduit (gap-3), plus grand sur Desktop (md:py-6, md:gap-6) */}
-      <header className="px-4 py-4 md:px-6 md:py-6 flex justify-between items-start gap-3 md:gap-6 max-w-2xl mx-auto">
+      <header className="px-6 py-6 flex justify-between items-start gap-6 max-w-2xl mx-auto">
         
         {/* Gauche : Texte (Boutons + Titre + Citation) */}
-        {/* Modification : Gap réduit sur mobile */}
-        <div className="flex-1 flex flex-col items-start gap-2 md:gap-4">
+        <div className="flex-1 flex flex-col items-start gap-4">
           
           {/* Boutons d'action */}
           <div className="flex gap-2">
              <button 
               onClick={() => setView('settings')}
-              // Modification : Padding réduit sur mobile
-              className={`p-1.5 md:p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800 text-stone-400' : 'hover:bg-stone-200 text-stone-600'}`}
+              className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800 text-stone-400' : 'hover:bg-stone-200 text-stone-600'}`}
             >
               <Settings size={20} />
             </button>
             <button 
               onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
-              className={`p-1.5 md:p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800' : 'hover:bg-stone-200'}`}
+              className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800' : 'hover:bg-stone-200'}`}
             >
               {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
             </button>
@@ -206,30 +203,27 @@ export default function App() {
 
           {/* Titre */}
           <div className="text-left">
-              {/* Modification : Taille de police réduite sur mobile (text-xl), grande sur desktop (md:text-3xl) */}
-              <h1 className={`text-xl md:text-3xl font-bold mb-1 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-900'}`}>Vie d'oraison</h1>
-              <p className={`text-xs md:text-sm italic ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>Vive Jésus dans nos cœurs à jamais</p>
+              <h1 className={`text-3xl font-bold mb-1 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-900'}`}>Vie d'oraison</h1>
+              <p className={`text-sm italic ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>Vive Jésus dans nos cœurs à jamais</p>
           </div>
 
           {/* Citation */}
           <div className="cursor-pointer" onClick={goHome}>
-            {/* Modification : Taille de police réduite sur mobile (text-xs) */}
-            <blockquote className={`font-serif text-xs md:text-sm italic leading-relaxed border-l-2 pl-3 ${theme === 'dark' ? 'text-stone-300 border-indigo-500' : 'text-stone-600 border-indigo-300'}`}>
+            <blockquote className={`font-serif text-sm italic leading-relaxed border-l-2 pl-3 ${theme === 'dark' ? 'text-stone-300 border-indigo-500' : 'text-stone-600 border-indigo-300'}`}>
               "Voici que je me tiens à la porte, et je frappe. Si quelqu’un entend ma voix et ouvre la porte, j’entrerai chez lui ; je prendrai mon repas avec lui, et lui avec moi."
             </blockquote>
-            <div className={`text-[10px] md:text-xs font-bold mt-1 pl-3 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-700'}`}>
+            <div className={`text-xs font-bold mt-1 pl-3 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-700'}`}>
               Ap 3,20
             </div>
           </div>
         </div>
 
-        {/* Droite : Logo */}
+        {/* Droite : Logo Grand Format */}
         <div className="shrink-0">
           <img 
             src="/logo.jpg" 
             alt="Logo" 
-            // Modification : h-32 (128px) sur mobile, h-72 (288px) sur desktop (md:)
-            className={`h-32 md:h-72 w-auto rounded-lg shadow-md border ${theme === 'dark' ? 'border-stone-700' : 'border-stone-200'}`}
+            className={`h-72 w-auto rounded-lg shadow-md border ${theme === 'dark' ? 'border-stone-700' : 'border-stone-200'}`}
             onError={(e) => {
                e.target.style.display = 'none';
             }}
@@ -239,9 +233,9 @@ export default function App() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-2xl mx-auto px-4 pb-20">
+      <main className="max-w-2xl mx-auto px-4 pb-20 pt-4">
         {view === 'home' && (
-          <div className="space-y-8 animate-fade-in mt-2 md:mt-4">
+          <div className="space-y-8 animate-fade-in mt-4">
             
             <div className="grid gap-4">
               <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group" >
@@ -252,9 +246,7 @@ export default function App() {
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg">Oraison guidée</h3>
                     <p className={`text-sm ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>
-                      Un parcours balisé : Se préparer, Dieu m'attend,<br />
-                      à la rencontre du Christ - accueillir son Amour - m'offrir - réagir,<br />
-                      Demeurer en Dieu.
+                      Un parcours balisé : préparation, entrée corps et fin de l'oraison.
                     </p>
                   </div>
                   <ChevronRight className="text-stone-300" />
@@ -375,36 +367,35 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
       </div>
 
       <Card theme={theme} className="flex-1 flex flex-col relative overflow-hidden !p-0">
-        <div className="pt-6 pb-2 px-6 text-center shrink-0">
+        <div className="pt-2 pb-1 px-4 text-center shrink-0">
            <span className="text-xs uppercase tracking-widest font-bold text-indigo-500">Étape {stepIndex + 1}/{stepsConfig.length}</span>
-           <h2 className={`text-2xl font-serif mt-2 ${theme === 'dark' ? 'text-stone-100' : 'text-stone-800'}`}>{currentStep.title}</h2>
+           <h2 className={`text-xl font-serif mt-1 ${theme === 'dark' ? 'text-stone-100' : 'text-stone-800'}`}>{currentStep.title}</h2>
         </div>
 
-        <div className="flex-1 w-full px-6 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start min-h-0 pt-4">
+        <div className="flex-1 w-full px-4 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start min-h-0 pt-2">
           {currentStep.id === 'reading' ? (
-            <div className="w-full max-w-lg mx-auto py-4 animate-fade-in-up my-auto">
-              <div className={`p-6 rounded-2xl border shadow-sm ${theme === 'dark' ? 'bg-stone-900 border-stone-700' : 'bg-stone-50 border-stone-200'}`}>
-                <p className={`font-serif text-lg leading-relaxed text-center font-medium ${theme === 'dark' ? 'text-stone-100' : 'text-stone-900'}`}>"{selectedText.content}"</p>
-                <p className={`mt-4 text-sm font-medium text-center ${theme === 'dark' ? 'text-stone-400' : 'text-stone-600'}`}>— {selectedText.source}</p>
+            <div className="w-full max-w-lg mx-auto py-2 animate-fade-in-up my-auto">
+              <div className={`p-4 rounded-2xl border shadow-sm ${theme === 'dark' ? 'bg-stone-900 border-stone-700' : 'bg-stone-50 border-stone-200'}`}>
+                <p className={`font-serif text-base leading-relaxed text-center font-medium ${theme === 'dark' ? 'text-stone-100' : 'text-stone-900'}`}>"{selectedText.content}"</p>
+                <p className={`mt-2 text-xs font-medium text-center ${theme === 'dark' ? 'text-stone-400' : 'text-stone-600'}`}>— {selectedText.source}</p>
               </div>
               <button 
                 onClick={() => setSelectedText(TEXTS[Math.floor(Math.random() * TEXTS.length)])}
-                className={`mt-4 text-xs text-indigo-500 flex items-center justify-center gap-2 mx-auto hover:text-indigo-600 transition-colors py-2 px-4 rounded-full ${theme === 'dark' ? 'hover:bg-stone-900' : 'hover:bg-stone-50'}`}
+                className={`mt-2 text-xs text-indigo-500 flex items-center justify-center gap-2 mx-auto hover:text-indigo-600 transition-colors py-2 px-4 rounded-full ${theme === 'dark' ? 'hover:bg-stone-900' : 'hover:bg-stone-50'}`}
               >
                 <RefreshCw size={14} /> <span>Autre texte</span>
               </button>
             </div>
           ) : (
-            <div className="w-full max-w-lg mx-auto py-4 my-auto">
-              {/* Optimisation pour mobile : text-xs, leading-normal */}
-              <div className={`text-xs md:text-sm whitespace-pre-wrap leading-normal animate-fade-in text-center font-serif ${theme === 'dark' ? 'text-stone-300' : 'text-stone-700'}`}>
+            <div className="w-full max-w-lg mx-auto mt-2">
+              <div className={`text-xs md:text-sm whitespace-pre-wrap leading-tight animate-fade-in text-center font-serif ${theme === 'dark' ? 'text-stone-300' : 'text-stone-700'}`}>
                 {currentStep.description}
               </div>
             </div>
           )}
 
-          <div className="py-4 flex justify-center items-center gap-4 shrink-0 mt-auto md:mt-0">
-            <div className={`text-4xl font-light tabular-nums tracking-tight opacity-80 ${theme === 'dark' ? 'text-indigo-200' : 'text-indigo-900'}`}>
+          <div className="py-2 flex justify-center items-center gap-4 shrink-0 mt-auto">
+            <div className={`text-3xl md:text-4xl font-light tabular-nums tracking-tight opacity-80 ${theme === 'dark' ? 'text-indigo-200' : 'text-indigo-900'}`}>
               {formatTime(timeLeft)}
             </div>
             <Button variant="outline" onClick={toggleTimer} className={`rounded-full w-10 h-10 !p-0 flex items-center justify-center border-2 ${theme === 'dark' ? 'border-indigo-800 hover:border-indigo-500' : 'border-indigo-200 hover:border-indigo-500'}`}>
@@ -413,7 +404,7 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
           </div>
         </div>
 
-        <div className={`w-full flex justify-between p-6 pt-4 border-t shrink-0 rounded-b-2xl ${theme === 'dark' ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-100'}`}>
+        <div className={`w-full flex justify-between p-4 pt-3 border-t shrink-0 rounded-b-2xl ${theme === 'dark' ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-100'}`}>
           <Button variant="ghost" onClick={prevStep} disabled={stepIndex === 0} className={stepIndex === 0 ? 'opacity-0' : ''}>
             <ChevronLeft size={20} /> Précédent
           </Button>
