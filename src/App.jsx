@@ -45,26 +45,26 @@ Je respire paisiblement.`,
         </span>
         
         <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
-          « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
-          je crois que Tu es là, que Tu m’attends, dans le fond de mon cœur »
+          Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
+          je crois que Tu es là, que Tu m’attends, dans le fond de mon cœur
         </span>
         <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(... acte personnel de foi, d’adoration, de confiance …)</span>
 
         <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
-          « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
-          prends pitié de moi dans le fond de mon cœur »
+          Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
+          prends pitié de moi dans le fond de mon cœur
         </span>
         <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(... un acte personnel de dépendance, de repentance …)</span>
 
         <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
-          « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
-          Envoie ton Esprit tout au fond de mon cœur »
+          Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
+          Envoie ton Esprit tout au fond de mon cœur
         </span>
         <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(... acte personnel d’appel de l’Esprit-Saint …)</span>
 
         <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
-          « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
-          je veux ce que tu veux dans le fond de mon cœur »
+          Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
+          je veux ce que tu veux dans le fond de mon cœur
         </span>
         <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-0 opacity-80">(... acte personnel d’abandon à la Volonté divine …)</span>
       </>
@@ -439,7 +439,7 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
         </div>
 
         {/* CONTENU CENTRAL : justify-center pour centrer verticalement le bloc texte+minuteur */}
-        <div className="flex-1 w-full px-4 overflow-y-auto custom-scrollbar flex flex-col items-center justify-center min-h-0 pt-1"> {/* pt-2 réduit à pt-1 */}
+        <div className="flex-1 w-full px-4 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start min-h-0 pt-2 pb-8">
           {currentStep.id === 'reading' ? (
             <div className="w-full max-w-lg mx-auto py-2 animate-fade-in-up my-auto">
               <div className={`p-4 rounded-2xl border shadow-sm ${theme === 'dark' ? 'bg-stone-900 border-stone-700' : 'bg-stone-50 border-stone-200'}`}>
