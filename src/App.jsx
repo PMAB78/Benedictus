@@ -194,8 +194,8 @@ export default function App() {
                     <BookOpen size={24} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg">Oraison Guidée</h3>
-                    <p className={`text-sm ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>Un parcours pas à pas : présence, écoute, dialogue.</p>
+                    <h3 className="font-semibold text-lg">Oraison guidée</h3>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>Un parcours balisé : se préparer, Dieu m'attend, à la rencontre du Christ - accueillir son Amour - m'offrir - réagir, Demeurer en Dieu.</p>
                   </div>
                   <ChevronRight className="text-stone-300" />
                 </div>
