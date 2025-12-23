@@ -37,35 +37,36 @@ Je respire paisiblement.`,
     title: 'Entrée en oraison',
     description: (
       <>
-        <span className="text-[15px] text-stone-600 dark:text-stone-300 block mb-1 leading-tight">
+        <span className="text-[15px] text-stone-900 dark:text-white block mb-1 leading-tight">
         Allons à la rencontre de Dieu qui nous attend,<br />
         faisons un beau et lent signe de croix et disons :<br /><br />
         </span>
         
-        {/* Marges et tailles optimisées pour tenir sur un écran mobile sans scroll */}
-        <span className="text-[15px] italic text-indigo-700 dark:text-indigo-300 block mb-1 leading-tight">
+        {/* CORRECTION : Utilisation de text-yellow-300 (plus vif) et activation du mode dark */}
+        
+        <span className="text-[15px] italic text-indigo-800 dark:text-yellow-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           je crois que Tu es là, que Tu m’attends, dans le fond de mon cœur »
         </span>
-        <span className="text-[15px] text-stone-600 dark:text-stone-400 block mb-3">(... acte personnel de foi, d’adoration, de confiance …)</span>
+        <span className="text-[15px] text-stone-600 dark:text-stone-300 block mb-3 opacity-80">(... acte personnel de foi, d’adoration, de confiance …)</span>
 
-        <span className="text-[15px] italic text-indigo-700 dark:text-indigo-300 block mb-1 leading-tight">
+        <span className="text-[15px] italic text-indigo-800 dark:text-yellow-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           prends pitié de moi dans le fond de mon cœur »
         </span>
-        <span className="text-[15px] text-stone-600 dark:text-stone-400 block mb-3">(... un acte personnel de dépendance, de repentance …)</span>
+        <span className="text-[15px] text-stone-600 dark:text-stone-300 block mb-3 opacity-80">(... un acte personnel de dépendance, de repentance …)</span>
 
-        <span className="text-[15px] italic text-indigo-700 dark:text-indigo-300 block mb-1 leading-tight">
+        <span className="text-[15px] italic text-indigo-800 dark:text-yellow-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           Envoie ton Esprit tout au fond de mon cœur »
         </span>
-        <span className="text-[15px] text-stone-600 dark:text-stone-400 block mb-3">(... acte personnel d’appel de l’Esprit-Saint …)</span>
+        <span className="text-[15px] text-stone-600 dark:text-stone-300 block mb-3 opacity-80">(... acte personnel d’appel de l’Esprit-Saint …)</span>
 
-        <span className="text-[15px] italic text-indigo-700 dark:text-indigo-300 block mb-1 leading-tight">
+        <span className="text-[15px] italic text-indigo-800 dark:text-yellow-300 block mb-1 leading-tight">
           « Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           je veux ce que tu veux dans le fond de mon cœur »
         </span>
-        <span className="text-[15px] text-stone-600 dark:text-stone-400 block mb-0">(... acte personnel d’abandon à la Volonté divine …)</span>
+        <span className="text-[15px] text-stone-600 dark:text-stone-300 block mb-0 opacity-80">(... acte personnel d’abandon à la Volonté divine …)</span>
       </>
     ),
     defaultDuration: 180 
@@ -188,7 +189,8 @@ export default function App() {
   const goHome = () => setView('home');
 
   return (
-    <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'bg-stone-900 text-stone-100' : 'bg-stone-50 text-stone-800'}`}>
+    // CORRECTION CRITIQUE : Ajout de la classe "dark" quand le thème est sombre
+    <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'dark bg-stone-900 text-white' : 'bg-stone-50 text-stone-900'}`}>
       
       {/* Affichage Conditionnel : Si Guided, on prend tout l'écran, sinon on affiche Header + Main */}
       {view === 'guided' ? (
@@ -220,15 +222,15 @@ export default function App() {
               {/* Titre */}
               <div className="text-left">
                   <h1 className={`text-3xl font-bold mb-1 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-900'}`}>Vie d'oraison</h1>
-                  <p className={`text-sm italic ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>Vive Jésus dans nos cœurs à jamais</p>
+                  <p className={`text-sm italic ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>Vive Jésus dans nos cœurs à jamais</p>
               </div>
 
               {/* Citation */}
               <div className="cursor-pointer" onClick={goHome}>
-                <blockquote className={`font-serif text-sm italic leading-relaxed border-l-2 pl-3 ${theme === 'dark' ? 'text-stone-300 border-indigo-500' : 'text-stone-600 border-indigo-300'}`}>
+                <blockquote className={`font-serif text-sm italic leading-relaxed border-l-2 pl-3 ${theme === 'dark' ? 'text-stone-200 border-indigo-500' : 'text-stone-800 border-indigo-300'}`}>
                   "Voici que je me tiens à la porte, et je frappe. Si quelqu’un entend ma voix et ouvre la porte, j’entrerai chez lui ; je prendrai mon repas avec lui, et lui avec moi."
                 </blockquote>
-                <div className={`text-xs font-bold mt-1 pl-3 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-700'}`}>
+                <div className={`text-xs font-bold mt-1 pl-3 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-800'}`}>
                   Ap 3,20
                 </div>
               </div>
@@ -261,7 +263,7 @@ export default function App() {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg">Oraison guidée</h3>
-                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>
                           Un parcours balisé : préparation, entrée corps et fin de l'oraison.
                         </p>
                       </div>
@@ -276,7 +278,7 @@ export default function App() {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg">Minuteur Silencieux</h3>
-                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>Gérez votre temps de prière en toute simplicité.</p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>Gérez votre temps de prière en toute simplicité.</p>
                       </div>
                       <ChevronRight className="text-stone-300" />
                     </div>
@@ -289,14 +291,14 @@ export default function App() {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg">Carnet Spirituel</h3>
-                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-400' : 'text-stone-500'}`}>Notez vos grâces, résolutions et pensées.</p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>Notez vos grâces, résolutions et pensées.</p>
                       </div>
                       <ChevronRight className="text-stone-300" />
                     </div>
                   </Card>
                 </div>
 
-                <div className={`mt-8 p-6 rounded-2xl text-center italic border ${theme === 'dark' ? 'bg-stone-800 text-stone-300 border-stone-700' : 'bg-stone-100 text-stone-600 border-stone-200'}`}>
+                <div className={`mt-8 p-6 rounded-2xl text-center italic border ${theme === 'dark' ? 'bg-stone-800 text-white border-stone-700' : 'bg-stone-100 text-stone-800 border-stone-200'}`}>
                   "{TEXTS[Math.floor(Math.random() * TEXTS.length)].content}"
                 </div>
               </div>
@@ -391,7 +393,8 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
 
   return (
     // Utilisation de fixed inset-0 pour garantir le plein écran mobile sans scroll de page
-    <div className={`fixed inset-0 z-50 flex flex-col max-w-2xl mx-auto px-4 py-4 ${theme === 'dark' ? 'bg-stone-900' : 'bg-stone-50'}`}>
+    // CORRECTION : Ajout de la classe "dark" ici aussi pour garantir le style des enfants
+    <div className={`fixed inset-0 z-50 flex flex-col max-w-2xl mx-auto px-4 py-4 ${theme === 'dark' ? 'dark bg-stone-900 text-white' : 'bg-stone-50 text-stone-900'}`}>
       <div className="flex justify-between items-center mb-2 shrink-0"> {/* mb-4 réduit à mb-2 */}
         <button onClick={onExit} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-700' : 'hover:bg-stone-200'}`}>
           <X size={24} />
@@ -405,7 +408,7 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
       <Card theme={theme} className="flex-1 flex flex-col relative overflow-hidden !p-0 min-h-0">
         <div className="pt-2 pb-1 px-4 text-center shrink-0">
            <span className="text-xs uppercase tracking-widest font-bold text-indigo-500">Étape {stepIndex + 1}/{stepsConfig.length}</span>
-           <h2 className={`text-xl font-serif mt-1 ${theme === 'dark' ? 'text-stone-100' : 'text-stone-800'}`}>{currentStep.title}</h2>
+           <h2 className={`text-xl font-serif mt-1 ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>{currentStep.title}</h2>
         </div>
 
         {/* CONTENU CENTRAL : justify-center pour centrer verticalement le bloc texte+minuteur */}
@@ -413,8 +416,10 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
           {currentStep.id === 'reading' ? (
             <div className="w-full max-w-lg mx-auto py-2 animate-fade-in-up my-auto">
               <div className={`p-4 rounded-2xl border shadow-sm ${theme === 'dark' ? 'bg-stone-900 border-stone-700' : 'bg-stone-50 border-stone-200'}`}>
-                <p className={`font-serif text-base leading-relaxed text-center font-medium ${theme === 'dark' ? 'text-stone-100' : 'text-stone-900'}`}>"{selectedText.content}"</p>
-                <p className={`mt-2 text-xs font-medium text-center ${theme === 'dark' ? 'text-stone-400' : 'text-stone-600'}`}>— {selectedText.source}</p>
+                {/* PRIERE: Indigo foncé jour, Jaune nuit */}
+                <p className={`font-serif text-base leading-relaxed text-center font-medium ${theme === 'dark' ? 'text-yellow-300' : 'text-indigo-800'}`}>"{selectedText.content}"</p>
+                {/* RESTE: Blanc nuit, Noir jour */}
+                <p className={`mt-2 text-xs font-medium text-center ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>— {selectedText.source}</p>
               </div>
               <button 
                 onClick={() => setSelectedText(TEXTS[Math.floor(Math.random() * TEXTS.length)])}
@@ -426,7 +431,7 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
           ) : (
             <div className="w-full max-w-lg mx-auto mt-0">
               {/* Optimisation pour mobile : text-base comme demandé, leading-snug */}
-              <div className={`text-base md:text-lg whitespace-pre-wrap leading-snug animate-fade-in text-center font-serif ${theme === 'dark' ? 'text-stone-300' : 'text-stone-700'}`}>
+              <div className={`text-base md:text-lg whitespace-pre-wrap leading-snug animate-fade-in text-center font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>
                 {currentStep.description}
               </div>
             </div>
@@ -472,7 +477,7 @@ function SettingsView({ stepsConfig, setStepsConfig, onExit, theme }) {
   return (
     <div className="flex flex-col h-[80vh]">
       <div className="flex justify-between items-center mb-6">
-        <h2 className={`text-2xl font-serif ${theme === 'dark' ? 'text-stone-100' : 'text-stone-800'}`}>Réglages</h2>
+        <h2 className={`text-2xl font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>Réglages</h2>
         <button onClick={onExit} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-700' : 'hover:bg-stone-200'}`}>
             <X size={24} />
         </button>
@@ -484,7 +489,7 @@ function SettingsView({ stepsConfig, setStepsConfig, onExit, theme }) {
           {stepsConfig.map((step, index) => (
             <div key={step.id} className={`flex items-center justify-between pb-4 border-b last:border-0 ${theme === 'dark' ? 'border-stone-700' : 'border-stone-100'}`}>
               <div className="flex-1">
-                <div className={`font-medium ${theme === 'dark' ? 'text-stone-200' : 'text-stone-800'}`}>{step.title}</div>
+                <div className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>{step.title}</div>
                 <div className="text-xs text-stone-400 mt-1">Par défaut : {formatDurationSetting(STEPS_CONTENT[index].defaultDuration)}</div>
               </div>
               <div className="flex items-center gap-3">
@@ -544,7 +549,7 @@ function FreeTimer({ onExit, theme }) {
       <Card theme={theme} className="text-center py-12">
         {mode === 'setup' && (
           <div className="animate-fade-in">
-            <h2 className={`text-2xl font-serif mb-8 ${theme === 'dark' ? 'text-stone-100' : 'text-stone-800'}`}>Durée de l'oraison</h2>
+            <h2 className={`text-2xl font-serif mb-8 ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>Durée de l'oraison</h2>
             <div className="flex justify-center items-center gap-6 mb-10">
               <button onClick={() => setDuration(d => Math.max(5, d - 5))} className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold ${theme === 'dark' ? 'bg-stone-700 hover:bg-stone-600' : 'bg-stone-100 hover:bg-stone-200'}`}>-</button>
               <div className={`text-5xl font-light w-32 ${theme === 'dark' ? 'text-indigo-200' : 'text-indigo-900'}`}>{duration} <span className="text-base text-stone-500">min</span></div>
@@ -592,7 +597,7 @@ function Journal({ entries, setEntries, onExit, theme }) {
   return (
     <div className="h-[85vh] flex flex-col">
        <div className="flex justify-between items-center mb-4">
-        <h2 className={`text-2xl font-serif ${theme === 'dark' ? 'text-stone-100' : 'text-stone-800'}`}>Mon Carnet</h2>
+        <h2 className={`text-2xl font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>Mon Carnet</h2>
         <button onClick={onExit} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-700' : 'hover:bg-stone-200'}`}><X size={24} /></button>
       </div>
 
@@ -601,7 +606,7 @@ function Journal({ entries, setEntries, onExit, theme }) {
           <Card theme={theme} className="flex-1 flex flex-col p-4">
             <label className="text-sm font-semibold text-stone-500 mb-2 uppercase tracking-wide">Nouvelle Note</label>
             <textarea 
-              className={`flex-1 w-full p-4 rounded-lg resize-none focus:outline-none focus:ring-2 leading-relaxed ${theme === 'dark' ? 'bg-stone-900 focus:ring-indigo-800 text-stone-200' : 'bg-stone-50 focus:ring-indigo-200 text-stone-700'}`}
+              className={`flex-1 w-full p-4 rounded-lg resize-none focus:outline-none focus:ring-2 leading-relaxed ${theme === 'dark' ? 'bg-stone-900 focus:ring-indigo-800 text-white' : 'bg-stone-50 focus:ring-indigo-200 text-stone-900'}`}
               placeholder="Quelles grâces avez-vous reçues ? Quelle résolution prenez-vous ?"
               value={text} onChange={(e) => setText(e.target.value)}
             />
@@ -621,7 +626,7 @@ function Journal({ entries, setEntries, onExit, theme }) {
           {entries.map(entry => (
             <div key={entry.id} className={`p-5 rounded-xl border shadow-sm relative group animate-fade-in-up ${theme === 'dark' ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-100'}`}>
               <div className="text-xs font-bold text-indigo-500 uppercase mb-2">{entry.date}</div>
-              <p className={`whitespace-pre-wrap font-serif ${theme === 'dark' ? 'text-stone-300' : 'text-stone-700'}`}>{entry.text}</p>
+              <p className={`whitespace-pre-wrap font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>{entry.text}</p>
               <button onClick={() => deleteEntry(entry.id)} className="absolute top-2 right-2 p-2 text-stone-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><X size={16} /></button>
             </div>
           ))}
