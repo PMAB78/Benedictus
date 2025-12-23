@@ -428,8 +428,9 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
            <h2 className={`text-xl font-serif mt-1 ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>{currentStep.title}</h2>
         </div>
 
-        {/* CONTENU CENTRAL : justify-center pour centrer verticalement le bloc texte+minuteur */}
-        <div className="flex-1 w-full px-4 overflow-y-auto custom-scrollbar flex flex-col items-center justify-center min-h-0 pt-1"> {/* pt-2 réduit à pt-1 */}
+        {/* CONTENU CENTRAL : justify-start au lieu de justify-center pour éviter le clipping sur petit écran */}
+        {/* Ajout de pb-8 pour garantir que la fin du texte est accessible */}
+        <div className="flex-1 w-full px-4 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start min-h-0 pt-2 pb-8">
           {currentStep.id === 'reading' ? (
             <div className="w-full max-w-lg mx-auto py-2 animate-fade-in-up my-auto">
               <div className={`p-4 rounded-2xl border shadow-sm ${theme === 'dark' ? 'bg-stone-900 border-stone-700' : 'bg-stone-50 border-stone-200'}`}>
@@ -446,7 +447,8 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
               </button>
             </div>
           ) : (
-            <div className="w-full max-w-lg mx-auto mt-0">
+            // Utilisation de my-auto pour centrer verticalement SI il y a de la place, sinon scroll normal
+            <div className="w-full max-w-lg mx-auto my-auto pt-2">
               {/* Optimisation pour mobile : text-base comme demandé, leading-snug */}
               <div className={`text-base md:text-lg whitespace-pre-wrap leading-snug animate-fade-in text-center font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>
                 {currentStep.description}
@@ -454,8 +456,8 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
             </div>
           )}
 
-          {/* Minuteur collé au texte (mt-1) et centré verticalement avec le texte */}
-          <div className="py-0 flex justify-center items-center gap-4 shrink-0 mt-2">
+          {/* Minuteur collé au texte (mt-4) */}
+          <div className="py-0 flex justify-center items-center gap-4 shrink-0 mt-4 mb-2">
             <div className={`text-3xl md:text-4xl font-light tabular-nums tracking-tight opacity-80 ${theme === 'dark' ? 'text-indigo-200' : 'text-indigo-900'}`}>
               {formatTime(timeLeft)}
             </div>
