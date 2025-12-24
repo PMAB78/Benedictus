@@ -110,7 +110,7 @@ const STEPS_CONTENT = [
         </span>
       </>
     ),
-    defaultDuration: 600 
+    defaultDuration: 540 
   },
   {
     id: 'resolution',
@@ -381,19 +381,6 @@ export default function App() {
                   </Card>
 
                   <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group">
-                     <div onClick={() => setView('free')} className="flex items-center gap-4">
-                      <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-teal-900 text-teal-300' : 'bg-teal-100 text-teal-600'}`}>
-                        <Clock size={24} />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg">Minuteur Silencieux</h3>
-                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>Gérez votre temps de prière en toute simplicité.</p>
-                      </div>
-                      <ChevronRight className="text-stone-300" />
-                    </div>
-                  </Card>
-
-                  <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group">
                     <div onClick={() => setView('journal')} className="flex items-center gap-4">
                       <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-amber-900 text-amber-300' : 'bg-amber-100 text-amber-600'}`}>
                         <PenTool size={24} />
@@ -413,7 +400,6 @@ export default function App() {
               </div>
             )}
 
-            {view === 'free' && <FreeTimer onExit={goHome} theme={theme} soundType={soundType} />}
             {view === 'journal' && <Journal entries={journalEntries} setEntries={setJournalEntries} onExit={goHome} theme={theme} />}
             {view === 'settings' && <SettingsView stepsConfig={stepsConfig} setStepsConfig={setStepsConfig} onExit={goHome} theme={theme} soundType={soundType} setSoundType={setSoundType} bellInterval={bellInterval} setBellInterval={setBellInterval} />}
           </main>
@@ -693,105 +679,6 @@ function SettingsView({ stepsConfig, setStepsConfig, onExit, theme, soundType, s
         <div className={`mt-8 p-4 rounded-xl text-sm border ${theme === 'dark' ? 'bg-stone-900 text-stone-400 border-stone-700' : 'bg-stone-50 text-stone-500 border-stone-200'}`}>
            Note : Ces réglages s'appliquent à votre prochaine oraison guidée. Le minuteur se lancera automatiquement à chaque changement d'étape.
         </div>
-      </Card>
-    </div>
-  );
-}
-
-function FreeTimer({ onExit, theme, soundType }) {
-  const [duration, setDuration] = useState(15);
-  const [timeLeft, setTimeLeft] = useState(15 * 60);
-  const [isActive, setIsActive] = useState(false);
-  const [mode, setMode] = useState('setup'); 
-
-  // Minuteur libre robuste avec Date.now()
-  const endTimeRef = useRef(null);
-  const { requestWakeLock, releaseWakeLock } = useWakeLock();
-
-  useEffect(() => {
-    if (isActive) requestWakeLock();
-    else releaseWakeLock();
-  }, [isActive]);
-
-  useEffect(() => {
-    if (isActive && !endTimeRef.current) {
-        endTimeRef.current = Date.now() + timeLeft * 1000;
-    } else if (!isActive) {
-        endTimeRef.current = null;
-    }
-  }, [isActive]);
-
-  useEffect(() => {
-    let interval = null;
-    if (isActive) {
-      interval = setInterval(() => {
-         if (endTimeRef.current) {
-             const now = Date.now();
-             const remaining = Math.ceil((endTimeRef.current - now) / 1000);
-             if (remaining <= 0) {
-                 setTimeLeft(0);
-                 setIsActive(false);
-                 setMode('done');
-                 playBell(soundType);
-             } else {
-                 setTimeLeft(remaining);
-             }
-         }
-      }, 200);
-    }
-    return () => clearInterval(interval);
-  }, [isActive, soundType]);
-
-  const startTimer = () => { setTimeLeft(duration * 60); setMode('running'); setIsActive(true); };
-  const resetTimer = () => { setIsActive(false); setMode('setup'); };
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
-
-  return (
-    <div className="flex flex-col h-[80vh] justify-center">
-      <div className="absolute top-0 right-0 p-4">
-          <button onClick={onExit} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-700' : 'hover:bg-stone-200'}`}>
-            <X size={24} />
-          </button>
-      </div>
-
-      <Card theme={theme} className="text-center py-12">
-        {mode === 'setup' && (
-          <div className="animate-fade-in">
-            <h2 className={`text-2xl font-serif mb-8 ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>Durée de l'oraison</h2>
-            <div className="flex justify-center items-center gap-6 mb-10">
-              <button onClick={() => setDuration(d => Math.max(5, d - 5))} className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold ${theme === 'dark' ? 'bg-stone-700 hover:bg-stone-600' : 'bg-stone-100 hover:bg-stone-200'}`}>-</button>
-              <div className={`text-5xl font-light w-32 ${theme === 'dark' ? 'text-indigo-200' : 'text-indigo-900'}`}>{duration} <span className="text-base text-stone-500">min</span></div>
-              <button onClick={() => setDuration(d => Math.min(60, d + 5))} className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold ${theme === 'dark' ? 'bg-stone-700 hover:bg-stone-600' : 'bg-stone-100 hover:bg-stone-200'}`}>+</button>
-            </div>
-            <Button onClick={startTimer} className="w-48 mx-auto !py-3 text-lg">Commencer</Button>
-          </div>
-        )}
-
-        {mode === 'running' && (
-          <div className="animate-fade-in">
-            <div className="mb-4 text-stone-400 text-sm uppercase tracking-widest">Temps restant</div>
-            <div className={`text-7xl font-light tabular-nums tracking-tight mb-10 ${theme === 'dark' ? 'text-indigo-200' : 'text-indigo-900'}`}>{formatTime(timeLeft)}</div>
-            <div className="flex justify-center gap-4">
-              <Button variant="outline" onClick={() => setIsActive(!isActive)} className="rounded-full w-16 h-16 !p-0 flex items-center justify-center border-2">
-                {isActive ? <Pause size={28} /> : <Play size={28} className="ml-1" />}
-              </Button>
-              <Button variant="ghost" onClick={resetTimer} className="rounded-full w-16 h-16 !p-0 flex items-center justify-center text-stone-400 hover:text-red-500"><X size={28} /></Button>
-            </div>
-            <div className="mt-12 text-stone-400 text-sm italic">"Il suffit de se tenir devant Lui."</div>
-          </div>
-        )}
-
-        {mode === 'done' && (
-          <div className="animate-fade-in">
-            <h2 className={`text-3xl font-serif mb-4 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-800'}`}>Temps écoulé</h2>
-            <p className={`mb-8 ${theme === 'dark' ? 'text-stone-400' : 'text-stone-600'}`}>Votre temps de prière est terminé. Prenez un moment pour remercier.</p>
-            <Button onClick={onExit}>Retour à l'accueil</Button>
-          </div>
-        )}
       </Card>
     </div>
   );
