@@ -46,6 +46,8 @@ const STEPS_CONTENT = [
     title: 'Entrée en oraison',
     description: (
       <>
+        {/* Ajout de '!' pour forcer les couleurs contre le mode sombre automatique de Samsung */}
+        {/* Utilisation de text-xs partout pour uniformiser et gagner de la place */}
         <span className="text-xs text-stone-900 dark:!text-white block mb-1 leading-tight">
         Allons à la rencontre de Dieu qui nous attend,<br />
         faisons un beau et lent signe de croix et disons :<br /><br />
@@ -136,50 +138,21 @@ const TEXTS = [
   { source: "Isaïe 43, 1", content: "Ne crains rien, car je te rachète, Je t'appelle par ton nom : tu es à moi !" },
 ];
 
-// --- Fonction Sonore ---
+// --- Fonction Sonore (LECTURE DE FICHIERS WAV) ---
 const playBell = (type = 'clochette') => {
   try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
-    const ctx = new AudioContext();
-    const osc = ctx.createOscillator();
-    const gainNode = ctx.createGain();
-    osc.connect(gainNode);
-    gainNode.connect(ctx.destination);
+    // Création d'un objet Audio pointant vers le fichier dans le dossier public
+    const audioPath = `/${type}.wav`;
+    const audio = new Audio(audioPath);
     
-    let frequency = 2000;
-    let duration = 0.7;
-    let waveType = 'sine';
+    // Tentative de lecture
+    audio.play().catch(error => {
+      console.warn(`Impossible de lire le son ${audioPath}. Vérifiez que le fichier existe dans le dossier public.`, error);
+    });
 
-    switch (type) {
-        case 'cloche':
-            frequency = 550; 
-            duration = 2.5; 
-            waveType = 'sine';
-            break;
-        case 'gong':
-            frequency = 140; 
-            duration = 4.0; 
-            waveType = 'triangle'; 
-            break;
-        case 'clochette':
-        default:
-            frequency = 2000; 
-            duration = 0.7; 
-            waveType = 'sine';
-            break;
-    }
-    
-    osc.type = waveType;
-    osc.frequency.setValueAtTime(frequency, ctx.currentTime);
-    
-    gainNode.gain.setValueAtTime(0, ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(type === 'gong' ? 0.3 : 0.1, ctx.currentTime + 0.05);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration); 
-    
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + duration);
-  } catch (e) { console.error("Erreur son", e); }
+  } catch (e) { 
+    console.error("Erreur système audio", e); 
+  }
 };
 
 // Fonction helper pour jouer plusieurs fois
@@ -346,12 +319,10 @@ export default function App() {
         <>
           <header className="px-6 py-6 flex justify-between items-start gap-6 max-w-2xl mx-auto">
             <div className="flex-1 flex flex-col items-start gap-4">
-              
               <div className="text-left">
                   <h1 className={`text-3xl font-bold mb-1 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-900'}`}>Benedictus</h1>
                   <p className={`text-sm italic ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>Vive Jésus dans nos cœurs !</p>
               </div>
-
               <div className="cursor-pointer" onClick={goHome}>
                 <blockquote className={`font-serif text-sm italic leading-relaxed border-l-2 pl-3 ${theme === 'dark' ? 'text-stone-200 border-indigo-500' : 'text-stone-800 border-indigo-300'}`}>
                   "Voici que je me tiens à la porte, et je frappe. Si quelqu’un entend ma voix et ouvre la porte, j’entrerai chez lui ; je prendrai mon repas avec lui, et lui avec moi."
@@ -465,7 +436,6 @@ function GuidedSession({ onExit, stepsConfig, theme, soundType, bellInterval }) 
 
   const currentStep = stepsConfig[stepIndex];
   const isLastStep = stepIndex === stepsConfig.length - 1;
-  // CORRECTION: Ajout du calcul de progress qui avait été oublié
   const progress = ((stepIndex + 1) / stepsConfig.length) * 100;
 
   useEffect(() => { setSelectedText(TEXTS[Math.floor(Math.random() * TEXTS.length)]); }, []);
