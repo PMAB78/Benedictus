@@ -34,93 +34,53 @@ Je respire paisiblement.`,
   },
   {
     id: 'entrée',
-    title: 'Entrée en oraison - Dieu m\'attend',
+    title: 'Entrée en oraison',
     description: (
       <>
         {/* Ajout de '!' pour forcer les couleurs contre le mode sombre automatique de Samsung */}
-        {/* Utilisation de text-sm partout pour uniformiser */}
-        <span className="text-sm text-stone-900 dark:!text-white block mb-1 leading-tight">
-        Faisons un beau et lent signe de croix, et disons :<br /><br />
+        {/* Utilisation de text-xs partout pour uniformiser et gagner de la place */}
+        <span className="text-xs text-stone-900 dark:!text-white block mb-1 leading-tight">
+        Allons à la rencontre de Dieu qui nous attend,<br />
+        faisons un beau et lent signe de croix et disons :<br /><br />
         </span>
         
-        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-xs italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           je crois que Tu es là, que Tu m’attends, dans le fond de mon cœur
         </span>
-        <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(acte de foi, d’adoration, de confiance...)</span>
+        <span className="text-xs text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(acte de foi, d’adoration, de confiance...)</span>
 
-        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-xs italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           prends pitié de moi dans le fond de mon cœur
         </span>
-        <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(acte de dépendance, de repentance...)</span>
+        <span className="text-xs text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(acte de dépendance, de repentance...)</span>
 
-        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-xs italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           Envoie ton Esprit tout au fond de mon cœur
         </span>
-        <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(acte d’appel de l’Esprit-Saint...)</span>
+        <span className="text-xs text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(acte d’appel de l’Esprit-Saint...)</span>
 
-        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-xs italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           je veux ce que tu veux dans le fond de mon cœur
         </span>
-        <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-0 opacity-80">(acte d’offrande à la Volonté divine...)</span>
+        <span className="text-xs text-stone-600 dark:!text-stone-300 block mb-0 opacity-80">(acte d’offrande à la Volonté divine...)</span>
       </>
     ),
     defaultDuration: 180 
   },
   {
     id: 'rencontre', 
-    title: 'Corps de l\'oraison - A la rencontre du Christ',
-    description: (
-      <>
-        {/* Ajout de '!' pour forcer les couleurs contre le mode sombre automatique de Samsung */}
-        {/* Utilisation de text-sm partout pour uniformiser */}
-        <span className="text-sm text-stone-900 dark:!text-white block mb-1 leading-tight">
-        Habiter l’évangile comme un personnage de plus <br />
-        Entrer dans les vues du Christ <br /> <br />
-        </span>
-        
-        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
-          Il me connaît et m’aime de toute éternité <br />
-          Il m’aime, en ce moment-même, l’être unique que je suis <br />
-          Il m’aime tel que je suis, avec mon bien et mon mal <br />
-          Il me regarde avec Amour <br /> <br />
-        </span>
-        
-        
-        <span className="text-sm text-stone-900 dark:!text-white block mb-1 leading-tight">
-        Accueillir son Amour, m’offrir, réagir à son Amour <br /> <br />
-        </span>
-
-        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
-          En m’ouvrant à son amour, comme on ouvre au soleil les volets de la chambre <br />
-          En m’offrant à Lui par amour tel que je suis <br />
-          En cherchant ce qu’il attend de moi, comme Saül sur le chemin de Damas <br /> 
-          « Seigneur, que veux-tu que je fasse ? » <br /> 
-          En espérant lui être toujours plus étroitement uni
-        </span>
-        
-      </>
-    ),
+    title: 'A la rencontre du Christ (Cœur à cœur)',
+    description: 'C\'est le temps de l\'échange silencieux. Parlez à Dieu comme à un ami, ou restez simplement dans sa présence amoureuse.',
     defaultDuration: 600 
   },
   {
     id: 'resolution',
-    title: 'Sortie de l\'oraison - Demeurer en Dieu',
-    description: (
-      <>
-               
-        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
-          Remercier le Seigneur pour son action en nous, perçue ou non perçue <br /> <br />
-          Se garder de juger son oraison quant au fond <br /> <br />
-          A la suite de cette oraison y-a-t-il quelque chose à modifier dans ma façon de penser ou d’agir ? <br /> <br />
-          Eventuellement emporter un verset ou une pensée pour la journée, pour mieux demeurer en Dieu, pour incarner une résolution <br /> <br />
-        </span>
-        
-      </>
-    ),
+    title: 'Conclusion & Résolution',
+    description: 'Terminez par une action de grâce. Prenez une petite résolution concrète pour votre journée.',
     defaultDuration: 180 
   }
 ];
@@ -166,6 +126,49 @@ const playBellsSequence = (count) => {
       playBell();
     }, i * 600); // Intervalle réduit à 600ms pour un tintement rapide
   }
+};
+
+// --- Hook pour Wake Lock (Garder l'écran allumé) ---
+const useWakeLock = () => {
+  const wakeLockRef = useRef(null);
+
+  const requestWakeLock = async () => {
+    if ('wakeLock' in navigator) {
+      try {
+        wakeLockRef.current = await navigator.wakeLock.request('screen');
+      } catch (err) {
+        console.error(`${err.name}, ${err.message}`);
+      }
+    }
+  };
+
+  const releaseWakeLock = async () => {
+    if (wakeLockRef.current) {
+      try {
+        await wakeLockRef.current.release();
+        wakeLockRef.current = null;
+      } catch (err) {
+        console.error(`${err.name}, ${err.message}`);
+      }
+    }
+  };
+
+  useEffect(() => {
+    // Re-demander le wake lock si la visibilité change (ex: retour après veille)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        requestWakeLock();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      releaseWakeLock();
+    };
+  }, []);
+
+  return { requestWakeLock, releaseWakeLock };
 };
 
 // --- Composants Utilitaires ---
@@ -391,64 +394,107 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
   const [selectedText, setSelectedText] = useState(TEXTS[0]);
   const transitionTimeoutRef = useRef(null);
   
+  // NOUVEAU: Référence pour stocker l'heure de fin cible (plus précis que setInterval)
+  const endTimeRef = useRef(null);
+  const { requestWakeLock, releaseWakeLock } = useWakeLock();
+
   const currentStep = stepsConfig[stepIndex];
   const isLastStep = stepIndex === stepsConfig.length - 1;
 
   useEffect(() => { setSelectedText(TEXTS[Math.floor(Math.random() * TEXTS.length)]); }, []);
   useEffect(() => { return () => { if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current); }; }, [stepIndex]);
 
-  // MODIFICATION: Dong d'ouverture unique au montage
+  // MODIFICATION: Dong d'ouverture + WakeLock
   useEffect(() => {
-    playBell(); // 1 Dong dès l'arrivée sur l'écran (début étape 1)
+    playBell(); 
+    requestWakeLock();
+    return () => releaseWakeLock();
   }, []);
 
+  // INITIALISATION DU TEMPS CIBLE QUAND ON ACTIVE LE TIMER
+  useEffect(() => {
+    if (isActive && !endTimeRef.current) {
+        // Si on active et qu'on n'a pas de cible, on la calcule : Maintenant + temps restant
+        endTimeRef.current = Date.now() + timeLeft * 1000;
+    } else if (!isActive) {
+        // Si on met en pause, on reset la cible (on gardera juste timeLeft figé)
+        endTimeRef.current = null;
+    }
+  }, [isActive]); // On ne dépend PAS de timeLeft ici pour ne pas recalculer à chaque seconde
+
+  // BOUCLE DE MINUTEUR ROBUSTE
   useEffect(() => {
     let interval = null;
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => { setTimeLeft(time => time - 1); }, 1000);
-    } else if (timeLeft === 0 && isActive) {
-      setIsActive(false);
-      
-      // MODIFICATION: Logique des dongs selon l'étape
-      let dongsCount = 0;
-      if (stepIndex === 0) dongsCount = 2; // Fin étape 1 (Corps)
-      else if (stepIndex === 1) dongsCount = 3; // Fin étape 2 (Entrée)
-      else if (stepIndex === 2) dongsCount = 2; // Fin étape 3 (Rencontre)
-      else if (stepIndex === 3) dongsCount = 1; // Fin étape 4 (Résolution)
+    if (isActive) {
+      interval = setInterval(() => {
+        if (endTimeRef.current) {
+             const now = Date.now();
+             const remaining = Math.ceil((endTimeRef.current - now) / 1000);
+             
+             if (remaining <= 0) {
+                 // FIN DU TIMER
+                 setTimeLeft(0);
+                 setIsActive(false);
+                 endTimeRef.current = null; // Reset
+                 
+                 // Logique des dongs
+                 playBell();
+                 
+                  // MODIFICATION: Logique des dongs selon l'étape
+                  let dongsCount = 0;
+                  if (stepIndex === 0) dongsCount = 2; // Fin étape 1 (Corps)
+                  else if (stepIndex === 1) dongsCount = 3; // Fin étape 2 (Entrée)
+                  else if (stepIndex === 2) dongsCount = 2; // Fin étape 3 (Rencontre)
+                  else if (stepIndex === 3) dongsCount = 1; // Fin étape 4 (Résolution)
 
-      playBellsSequence(dongsCount);
+                  playBellsSequence(dongsCount);
 
-      // Calcul du délai avant transition : temps de la séquence + 1 petite seconde de silence
-      // Ajustement du calcul avec le nouvel intervalle de 600ms
-      const transitionDelay = (dongsCount * 600) + 1000;
+                  // Calcul du délai avant transition
+                  const transitionDelay = (dongsCount * 600) + 1000;
 
-      transitionTimeoutRef.current = setTimeout(() => {
-         if (stepIndex < stepsConfig.length - 1) {
-            const nextIdx = stepIndex + 1;
-            setStepIndex(nextIdx);
-            setTimeLeft(stepsConfig[nextIdx].duration);
-            setIsActive(true); 
-         } else { onExit(); }
-      }, transitionDelay);
+                 transitionTimeoutRef.current = setTimeout(() => {
+                    if (stepIndex < stepsConfig.length - 1) {
+                        const nextIdx = stepIndex + 1;
+                        setStepIndex(nextIdx);
+                        const nextDuration = stepsConfig[nextIdx].duration;
+                        setTimeLeft(nextDuration);
+                        // On relance pour la prochaine étape
+                        endTimeRef.current = Date.now() + nextDuration * 1000 + transitionDelay; // On ajoute le délai à la cible pour être précis ? Non, on reset juste isActive
+                        setIsActive(true); 
+                        // Note: Le useEffect [isActive] va recalculer endTimeRef.current proprement
+                        endTimeRef.current = null; // Force le recalcul
+                    } else { onExit(); }
+                 }, transitionDelay);
+
+             } else {
+                 setTimeLeft(remaining);
+             }
+        }
+      }, 200); // Check plus fréquent (5 fois par seconde) pour fluidité
     }
-    return () => { if (interval) clearInterval(interval); };
-  }, [isActive, timeLeft, stepIndex, stepsConfig, onExit]);
+    return () => clearInterval(interval);
+  }, [isActive, stepIndex, stepsConfig, onExit]);
+
 
   const toggleTimer = () => setIsActive(!isActive);
   const nextStep = () => {
     if (stepIndex < stepsConfig.length - 1) {
       const nextIdx = stepIndex + 1;
       setStepIndex(nextIdx);
-      setTimeLeft(stepsConfig[nextIdx].duration);
+      const nextD = stepsConfig[nextIdx].duration;
+      setTimeLeft(nextD);
       setIsActive(true);
+      endTimeRef.current = null; // Force recalcul
     } else { onExit(); }
   };
   const prevStep = () => {
     if (stepIndex > 0) {
       const prevIdx = stepIndex - 1;
       setStepIndex(prevIdx);
-      setTimeLeft(stepsConfig[prevIdx].duration);
-      setIsActive(false);
+      const prevD = stepsConfig[prevIdx].duration;
+      setTimeLeft(prevD);
+      setIsActive(false); // Pause quand on recule
+      endTimeRef.current = null;
     }
   };
   const formatTime = (seconds) => {
@@ -479,7 +525,7 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
         </div>
 
         {/* CONTENU CENTRAL : justify-center pour centrer verticalement le bloc texte+minuteur */}
-        <div className="flex-1 w-full px-4 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start min-h-0 pt-2 pb-8">
+        <div className="flex-1 w-full px-4 overflow-y-auto custom-scrollbar flex flex-col items-center justify-center min-h-0 pt-1"> {/* pt-2 réduit à pt-1 */}
           {currentStep.id === 'reading' ? (
             <div className="w-full max-w-lg mx-auto py-2 animate-fade-in-up my-auto">
               <div className={`p-4 rounded-2xl border shadow-sm ${theme === 'dark' ? 'bg-stone-900 border-stone-700' : 'bg-stone-50 border-stone-200'}`}>
@@ -497,9 +543,9 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
             </div>
           ) : (
             // Utilisation de my-auto pour centrer verticalement SI il y a de la place, sinon scroll normal
-            <div className="w-full max-w-lg mx-auto my-auto pt-2">
+            <div className="w-full max-w-lg mx-auto mt-0">
               {/* Optimisation pour mobile : text-base comme demandé, leading-snug */}
-              <div className={`text-sm whitespace-pre-wrap leading-snug animate-fade-in text-center font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>
+              <div className={`text-xs whitespace-pre-wrap leading-snug animate-fade-in text-center font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>
                 {currentStep.description}
               </div>
             </div>
@@ -588,15 +634,44 @@ function FreeTimer({ onExit, theme }) {
   const [isActive, setIsActive] = useState(false);
   const [mode, setMode] = useState('setup'); 
 
+  // Minuteur libre robuste avec Date.now()
+  const endTimeRef = useRef(null);
+  const { requestWakeLock, releaseWakeLock } = useWakeLock();
+
+  useEffect(() => {
+    if (isActive) requestWakeLock();
+    else releaseWakeLock();
+  }, [isActive]);
+
+  useEffect(() => {
+    if (isActive && !endTimeRef.current) {
+        endTimeRef.current = Date.now() + timeLeft * 1000;
+    } else if (!isActive) {
+        endTimeRef.current = null;
+    }
+  }, [isActive]);
+
   useEffect(() => {
     let interval = null;
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => { setTimeLeft(time => time - 1); }, 1000);
-    } else if (timeLeft === 0 && mode === 'running') {
-      setIsActive(false); setMode('done'); playBell();
+    if (isActive) {
+      interval = setInterval(() => {
+         if (endTimeRef.current) {
+             const now = Date.now();
+             const remaining = Math.ceil((endTimeRef.current - now) / 1000);
+             if (remaining <= 0) {
+                 setTimeLeft(0);
+                 setIsActive(false);
+                 setMode('done');
+                 playBell();
+             } else {
+                 setTimeLeft(remaining);
+             }
+         }
+      }, 200);
     }
     return () => clearInterval(interval);
-  }, [isActive, timeLeft, mode]);
+  }, [isActive]);
+
 
   const startTimer = () => { setTimeLeft(duration * 60); setMode('running'); setIsActive(true); };
   const resetTimer = () => { setIsActive(false); setMode('setup'); };
