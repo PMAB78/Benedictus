@@ -34,52 +34,93 @@ Je respire paisiblement.`,
   },
   {
     id: 'entrée',
-    title: 'Entrée en oraison',
+    title: 'Entrée en oraison - Dieu m\'attend',
     description: (
       <>
-        {/* Modification : Passage de text-sm à text-xs pour gagner de la place */}
-        <span className="text-xs text-stone-900 dark:!text-white block mb-1 leading-tight">
-        Allons à la rencontre de Dieu qui nous attend,<br />
-        faisons un beau et lent signe de croix et disons :<br /><br />
+        {/* Ajout de '!' pour forcer les couleurs contre le mode sombre automatique de Samsung */}
+        {/* Utilisation de text-sm partout pour uniformiser */}
+        <span className="text-sm text-stone-900 dark:!text-white block mb-1 leading-tight">
+        Faisons un beau et lent signe de croix, et disons :<br /><br />
         </span>
         
-        <span className="text-xs italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           je crois que Tu es là, que Tu m’attends, dans le fond de mon cœur
         </span>
-        <span className="text-xs text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(acte de foi, d’adoration, de confiance...)</span>
+        <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(acte de foi, d’adoration, de confiance...)</span>
 
-        <span className="text-xs italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           prends pitié de moi dans le fond de mon cœur
         </span>
-        <span className="text-xs text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(acte de dépendance, de repentance...)</span>
+        <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(acte de dépendance, de repentance...)</span>
 
-        <span className="text-xs italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           Envoie ton Esprit tout au fond de mon cœur
         </span>
-        <span className="text-xs text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(acte d’appel de l’Esprit-Saint...)</span>
+        <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-3 opacity-80">(acte d’appel de l’Esprit-Saint...)</span>
 
-        <span className="text-xs italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
           Ô Toi, qui es chez Toi dans le fond de mon cœur,<br />
           je veux ce que tu veux dans le fond de mon cœur
         </span>
-        <span className="text-xs text-stone-600 dark:!text-stone-300 block mb-0 opacity-80">(acte d’offrande à la Volonté divine...)</span>
+        <span className="text-sm text-stone-600 dark:!text-stone-300 block mb-0 opacity-80">(acte d’offrande à la Volonté divine...)</span>
       </>
     ),
     defaultDuration: 180 
   },
   {
     id: 'rencontre', 
-    title: 'A la rencontre du Christ (Cœur à cœur)',
-    description: 'C\'est le temps de l\'échange silencieux. Parlez à Dieu comme à un ami, ou restez simplement dans sa présence amoureuse.',
+    title: 'Corps de l\'oraison - A la rencontre du Christ',
+    description: (
+      <>
+        {/* Ajout de '!' pour forcer les couleurs contre le mode sombre automatique de Samsung */}
+        {/* Utilisation de text-sm partout pour uniformiser */}
+        <span className="text-sm text-stone-900 dark:!text-white block mb-1 leading-tight">
+        Habiter l’évangile comme un personnage de plus <br />
+        Entrer dans les vues du Christ <br /> <br />
+        </span>
+        
+        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+          Il me connaît et m’aime de toute éternité <br />
+          Il m’aime, en ce moment-même, l’être unique que je suis <br />
+          Il m’aime tel que je suis, avec mon bien et mon mal <br />
+          Il me regarde avec Amour <br /> <br />
+        </span>
+        
+        
+        <span className="text-sm text-stone-900 dark:!text-white block mb-1 leading-tight">
+        Accueillir son Amour, m’offrir, réagir à son Amour <br /> <br />
+        </span>
+
+        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+          En m’ouvrant à son amour, comme on ouvre au soleil les volets de la chambre <br />
+          En m’offrant à Lui par amour tel que je suis <br />
+          En cherchant ce qu’il attend de moi, comme Saül sur le chemin de Damas <br /> 
+          « Seigneur, que veux-tu que je fasse ? » <br /> 
+          En espérant lui être toujours plus étroitement uni
+        </span>
+        
+      </>
+    ),
     defaultDuration: 600 
   },
   {
     id: 'resolution',
-    title: 'Conclusion & Résolution',
-    description: 'Terminez par une action de grâce. Prenez une petite résolution concrète pour votre journée.',
+    title: 'Sortie de l\'oraison - Demeurer en Dieu',
+    description: (
+      <>
+               
+        <span className="text-sm italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+          Remercier le Seigneur pour son action en nous, perçue ou non perçue <br /> <br />
+          Se garder de juger son oraison quant au fond <br /> <br />
+          A la suite de cette oraison y-a-t-il quelque chose à modifier dans ma façon de penser ou d’agir ? <br /> <br />
+          Eventuellement emporter un verset ou une pensée pour la journée, pour mieux demeurer en Dieu, pour incarner une résolution <br /> <br />
+        </span>
+        
+      </>
+    ),
     defaultDuration: 180 
   }
 ];
@@ -457,8 +498,8 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
           ) : (
             // Utilisation de my-auto pour centrer verticalement SI il y a de la place, sinon scroll normal
             <div className="w-full max-w-lg mx-auto my-auto pt-2">
-              {/* Optimisation pour mobile : text-xs partout pour la description (ex: étapes 1, 3, 4) */}
-              <div className={`text-xs whitespace-pre-wrap leading-snug animate-fade-in text-center font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>
+              {/* Optimisation pour mobile : text-base comme demandé, leading-snug */}
+              <div className={`text-sm whitespace-pre-wrap leading-snug animate-fade-in text-center font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>
                 {currentStep.description}
               </div>
             </div>
