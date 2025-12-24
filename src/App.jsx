@@ -128,11 +128,11 @@ const STEPS_CONTENT = [
 
 const TEXTS = [
   { source: "Psaume 23", content: "L'Éternel est mon berger : je ne manquerai de rien. Il me fait reposer dans de verts pâturages, Il me dirige près des eaux paisibles." },
-  { source: "Jean 15,9", content: "Comme le Père m'a aimé, moi aussi je vous ai aimés. Demeurez dans mon amour." },
+  { source: "Jean 15, 9", content: "Comme le Père m'a aimé, moi aussi je vous ai aimés. Demeurez dans mon amour." },
   { source: "Saint Augustin", content: "Tu nous as faits pour toi, Seigneur, et notre cœur est sans repos tant qu'il ne demeure en toi." },
-  { source: "Matthieu 11,28", content: "Venez à moi, vous tous qui êtes fatigués et chargés, et je vous donnerai du repos." },
+  { source: "Matthieu 11, 28", content: "Venez à moi, vous tous qui êtes fatigués et chargés, et je vous donnerai du repos." },
   { source: "Sainte Thérèse d'Avila", content: "L'oraison n'est à mon avis qu'un commerce intime d'amitié où l'on s'entretient souvent seul à seul avec ce Dieu dont on se sait aimé." },
-  { source: "Isaïe 43,1", content: "Ne crains rien, car je te rachète, Je t'appelle par ton nom : tu es à moi !" },
+  { source: "Isaïe 43, 1", content: "Ne crains rien, car je te rachète, Je t'appelle par ton nom : tu es à moi !" },
 ];
 
 // --- Fonction Sonore ---
