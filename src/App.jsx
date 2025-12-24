@@ -25,7 +25,6 @@ import {
 
 // --- Données et Contenu ---
 
-// Ces définitions contiennent du JSX (mise en forme) et ne doivent pas être écrasées par le LocalStorage brut.
 const STEPS_CONTENT = [
   {
     id: 'corps',
@@ -46,8 +45,6 @@ const STEPS_CONTENT = [
     title: 'Entrée en oraison',
     description: (
       <>
-        {/* Ajout de '!' pour forcer les couleurs contre le mode sombre automatique de Samsung */}
-        {/* Utilisation de text-xs partout pour uniformiser et gagner de la place */}
         <span className="text-xs text-stone-900 dark:!text-white block mb-1 leading-tight">
         Allons à la rencontre de Dieu qui nous attend,<br />
         faisons un beau et lent signe de croix et disons :<br /><br />
@@ -202,7 +199,7 @@ const useWakeLock = () => {
       try {
         wakeLockRef.current = await navigator.wakeLock.request('screen');
       } catch (err) {
-        // Silently ignore errors if wake lock is not allowed
+        // Silently ignore errors
       }
     }
   };
@@ -272,14 +269,13 @@ export default function App() {
   });
   useEffect(() => { localStorage.setItem('sanctuaire_journal', JSON.stringify(journalEntries)); }, [journalEntries]);
 
-  // INITIALISATION DU THÈME AVEC DÉTECTION DU SYSTÈME
+  // INITIALISATION DU THÈME
   const [theme, setTheme] = useState(() => {
     try { 
       const saved = localStorage.getItem('sanctuaire_theme'); 
       if (saved) {
         return JSON.parse(saved);
       }
-      // Si aucune préférence sauvegardée, on regarde le système
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         return 'dark';
       }
@@ -294,7 +290,6 @@ export default function App() {
       } catch (e) { return 'clochette'; }
   });
 
-  // NOUVEAU STATE : Intervalle entre les sonneries (en ms)
   const [bellInterval, setBellInterval] = useState(() => {
       try { 
           const saved = localStorage.getItem('sanctuaire_bell_interval'); 
@@ -305,7 +300,6 @@ export default function App() {
   useEffect(() => { localStorage.setItem('sanctuaire_sound_type', JSON.stringify(soundType)); }, [soundType]);
   useEffect(() => { localStorage.setItem('sanctuaire_bell_interval', JSON.stringify(bellInterval)); }, [bellInterval]);
 
-  // MISE À JOUR DE LA CLASSE SUR HTML (DocumentRoot)
   useEffect(() => { 
     localStorage.setItem('sanctuaire_theme', JSON.stringify(theme)); 
     if (theme === 'dark') {
@@ -315,7 +309,6 @@ export default function App() {
     }
   }, [theme]);
 
-  // Initialisation intelligente des étapes
   const [stepsConfig, setStepsConfig] = useState(() => {
     try {
       const savedDurations = JSON.parse(localStorage.getItem('sanctuaire_durations') || '{}');
@@ -341,13 +334,40 @@ export default function App() {
   return (
     <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'dark bg-stone-900 text-white' : 'bg-stone-50 text-stone-900'}`}>
       
-      {/* Affichage Conditionnel */}
       {view === 'guided' ? (
         <GuidedSession onExit={goHome} stepsConfig={stepsConfig} theme={theme} soundType={soundType} bellInterval={bellInterval} />
       ) : (
         <>
           <header className="px-6 py-6 flex justify-between items-start gap-6 max-w-2xl mx-auto">
+            
+            {/* Gauche : Texte uniquement */}
             <div className="flex-1 flex flex-col items-start gap-4">
+              <div className="text-left">
+                  <h1 className={`text-3xl font-bold mb-1 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-900'}`}>Benedictus</h1>
+                  <p className={`text-sm italic ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>Vive Jésus dans nos cœurs !</p>
+              </div>
+
+              <div className="cursor-pointer" onClick={goHome}>
+                <blockquote className={`font-serif text-sm italic leading-relaxed border-l-2 pl-3 ${theme === 'dark' ? 'text-stone-200 border-indigo-500' : 'text-stone-800 border-indigo-300'}`}>
+                  "Voici que je me tiens à la porte, et je frappe. Si quelqu’un entend ma voix et ouvre la porte, j’entrerai chez lui ; je prendrai mon repas avec lui, et lui avec moi."
+                </blockquote>
+                <div className={`text-xs font-bold mt-1 pl-3 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-800'}`}>
+                  Ap 3,20
+                </div>
+              </div>
+            </div>
+
+            {/* Droite : Logo + Boutons en dessous */}
+            <div className="shrink-0 flex flex-col items-center gap-4">
+              <img 
+                src="/logo.jpg" 
+                alt="Logo" 
+                className={`h-72 w-auto rounded-lg shadow-md border ${theme === 'dark' ? 'border-stone-700' : 'border-stone-200'}`}
+                onError={(e) => {
+                   e.target.style.display = 'none';
+                }}
+              />
+              
               <div className="flex gap-2">
                  <button 
                   onClick={() => setView('settings')}
@@ -362,35 +382,14 @@ export default function App() {
                   {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
                 </button>
               </div>
-              <div className="text-left">
-                  <h1 className={`text-3xl font-bold mb-1 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-900'}`}>Benedictus</h1>
-                  <p className={`text-sm italic ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>Vive Jésus dans nos cœurs !</p>
-              </div>
-              <div className="cursor-pointer" onClick={goHome}>
-                <blockquote className={`font-serif text-sm italic leading-relaxed border-l-2 pl-3 ${theme === 'dark' ? 'text-stone-200 border-indigo-500' : 'text-stone-800 border-indigo-300'}`}>
-                  "Voici que je me tiens à la porte, et je frappe. Si quelqu’un entend ma voix et ouvre la porte, j’entrerai chez lui ; je prendrai mon repas avec lui, et lui avec moi."
-                </blockquote>
-                <div className={`text-xs font-bold mt-1 pl-3 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-800'}`}>
-                  Ap 3,20
-                </div>
-              </div>
             </div>
-
-            <div className="shrink-0">
-              <img 
-                src="/logo.jpg" 
-                alt="Logo" 
-                className={`h-72 w-auto rounded-lg shadow-md border ${theme === 'dark' ? 'border-stone-700' : 'border-stone-200'}`}
-                onError={(e) => {
-                   e.target.style.display = 'none';
-                }}
-              />
-            </div>
+            
           </header>
 
           <main className="max-w-2xl mx-auto px-4 pb-20 pt-4">
             {view === 'home' && (
               <div className="space-y-8 animate-fade-in mt-4">
+                
                 <div className="grid gap-4">
                   <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group" >
                     <div onClick={() => setView('guided')} className="flex items-center gap-4">
@@ -450,6 +449,7 @@ export default function App() {
   );
 }
 
+// ... (le reste des composants GuidedSession, SettingsView, FreeTimer, Journal reste inchangé) ...
 // --- Sous-Composants ---
 
 function GuidedSession({ onExit, stepsConfig, theme, soundType, bellInterval }) {
@@ -463,7 +463,6 @@ function GuidedSession({ onExit, stepsConfig, theme, soundType, bellInterval }) 
 
   const currentStep = stepsConfig[stepIndex];
   const isLastStep = stepIndex === stepsConfig.length - 1;
-  const progress = ((stepIndex + 1) / stepsConfig.length) * 100;
 
   useEffect(() => { setSelectedText(TEXTS[Math.floor(Math.random() * TEXTS.length)]); }, []);
   useEffect(() => { return () => { if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current); }; }, [stepIndex]);
@@ -619,7 +618,7 @@ function GuidedSession({ onExit, stepsConfig, theme, soundType, bellInterval }) 
 function SettingsView({ stepsConfig, setStepsConfig, onExit, theme, soundType, setSoundType, bellInterval, setBellInterval }) {
   const updateDuration = (index, change) => {
     const newSteps = [...stepsConfig];
-    const newDuration = Math.max(10, newSteps[index].duration + change * 10);
+    const newDuration = Math.max(30, newSteps[index].duration + change * 30);
     newSteps[index].duration = newDuration;
     setStepsConfig(newSteps);
   };
