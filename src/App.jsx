@@ -73,14 +73,49 @@ Je respire paisiblement.`,
   },
   {
     id: 'rencontre', 
-    title: 'A la rencontre du Christ (Cœur à cœur)',
-    description: 'C\'est le temps de l\'échange silencieux. Parlez à Dieu comme à un ami, ou restez simplement dans sa présence amoureuse.',
+    title: 'Corps de l\'oraison - A la rencontre du Christ',
+    description: (
+      <>
+        <span className="text-xs text-stone-900 dark:!text-white block mb-1 leading-tight">
+        Habiter l’évangile comme un personnage de plus <br />
+        Entrer dans les vues du Christ <br /> <br />
+        </span>
+        
+        <span className="text-xs italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+          Il me connaît et m’aime de toute éternité <br />
+          Il m’aime, en ce moment-même, l’être unique que je suis <br />
+          Il m’aime tel que je suis, avec mon bien et mon mal <br />
+          Il me regarde avec Amour <br /> <br />
+        </span>
+        
+        <span className="text-xs text-stone-900 dark:!text-white block mb-1 leading-tight">
+        Accueillir son Amour, m’offrir, réagir à son Amour <br /> <br />
+        </span>
+
+        <span className="text-xs italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+          En m’ouvrant à son amour, comme on ouvre au soleil les volets de la chambre <br />
+          En m’offrant à Lui par amour tel que je suis <br />
+          En cherchant ce qu’il attend de moi, comme Saül sur le chemin de Damas <br /> 
+          « Seigneur, que veux-tu que je fasse ? » <br /> 
+          En espérant lui être toujours plus étroitement uni
+        </span>
+      </>
+    ),
     defaultDuration: 600 
   },
   {
     id: 'resolution',
-    title: 'Conclusion & Résolution',
-    description: 'Terminez par une action de grâce. Prenez une petite résolution concrète pour votre journée.',
+    title: 'Sortie de l\'oraison - Demeurer en Dieu',
+    description: (
+      <>
+        <span className="text-xs italic text-indigo-800 dark:!text-yellow-300 block mb-1 leading-tight">
+          Remercier le Seigneur pour son action en nous, perçue ou non perçue <br /> <br />
+          Se garder de juger son oraison quant au fond <br /> <br />
+          A la suite de cette oraison y-a-t-il quelque chose à modifier dans ma façon de penser ou d’agir ? <br /> <br />
+          Eventuellement emporter un verset ou une pensée pour la journée, pour mieux demeurer en Dieu, pour incarner une résolution <br /> <br />
+        </span>
+      </>
+    ),
     defaultDuration: 180 
   }
 ];
@@ -543,7 +578,7 @@ function GuidedSession({ onExit, stepsConfig, theme }) {
             </div>
           ) : (
             // Utilisation de my-auto pour centrer verticalement SI il y a de la place, sinon scroll normal
-            <div className="w-full max-w-lg mx-auto mt-0">
+            <div className="w-full max-w-lg mx-auto my-auto pt-2">
               {/* Optimisation pour mobile : text-base comme demandé, leading-snug */}
               <div className={`text-xs whitespace-pre-wrap leading-snug animate-fade-in text-center font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>
                 {currentStep.description}
