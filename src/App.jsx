@@ -46,8 +46,6 @@ const STEPS_CONTENT = [
     title: 'Entrée en oraison',
     description: (
       <>
-        {/* Ajout de '!' pour forcer les couleurs contre le mode sombre automatique de Samsung */}
-        {/* Utilisation de text-xs partout pour uniformiser et gagner de la place */}
         <span className="text-xs text-stone-900 dark:!text-white block mb-1 leading-tight">
         Allons à la rencontre de Dieu qui nous attend,<br />
         faisons un beau et lent signe de croix et disons :<br /><br />
@@ -141,15 +139,17 @@ const TEXTS = [
 // --- Fonction Sonore (LECTURE DE FICHIERS WAV) ---
 const playBell = (type = 'clochette') => {
   try {
-    // Création d'un objet Audio pointant vers le fichier dans le dossier public
     const audioPath = `/${type}.wav`;
     const audio = new Audio(audioPath);
+    audio.volume = 1.0; // S'assurer que le volume est à fond
     
-    // Tentative de lecture
-    audio.play().catch(error => {
-      console.warn(`Impossible de lire le son ${audioPath}. Vérifiez que le fichier existe dans le dossier public.`, error);
-    });
-
+    // Tentative de lecture avec gestion d'erreur améliorée
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        console.warn(`Erreur lecture ${audioPath}. Interaction requise ou fichier manquant.`, error);
+      });
+    }
   } catch (e) { 
     console.error("Erreur système audio", e); 
   }
@@ -167,42 +167,24 @@ const playBellsSequence = (count, interval, type = 'clochette') => {
 // --- Hook pour Wake Lock ---
 const useWakeLock = () => {
   const wakeLockRef = useRef(null);
-
   const requestWakeLock = async () => {
     if ('wakeLock' in navigator) {
-      try {
-        wakeLockRef.current = await navigator.wakeLock.request('screen');
-      } catch (err) {
-        // Silently ignore errors if wake lock is not allowed
-      }
+      try { wakeLockRef.current = await navigator.wakeLock.request('screen'); } catch (err) {}
     }
   };
-
   const releaseWakeLock = async () => {
     if (wakeLockRef.current) {
-      try {
-        await wakeLockRef.current.release();
-        wakeLockRef.current = null;
-      } catch (err) {
-         // Silently ignore errors
-      }
+      try { await wakeLockRef.current.release(); wakeLockRef.current = null; } catch (err) {}
     }
   };
-
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        requestWakeLock();
-      }
-    };
-
+    const handleVisibilityChange = () => { if (document.visibilityState === 'visible') requestWakeLock(); };
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       releaseWakeLock();
     };
   }, []);
-
   return { requestWakeLock, releaseWakeLock };
 };
 
@@ -243,67 +225,44 @@ export default function App() {
   });
   useEffect(() => { localStorage.setItem('sanctuaire_journal', JSON.stringify(journalEntries)); }, [journalEntries]);
 
-  // INITIALISATION DU THÈME AVEC DÉTECTION DU SYSTÈME
+  // INITIALISATION DU THÈME
   const [theme, setTheme] = useState(() => {
     try { 
       const saved = localStorage.getItem('sanctuaire_theme'); 
-      if (saved) {
-        return JSON.parse(saved);
-      }
-      // Si aucune préférence sauvegardée, on regarde le système
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'dark';
-      }
+      if (saved) return JSON.parse(saved);
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
       return 'light'; 
     } catch (e) { return 'light'; }
   });
   
   const [soundType, setSoundType] = useState(() => {
-      try { 
-          const saved = localStorage.getItem('sanctuaire_sound_type'); 
-          return saved ? JSON.parse(saved) : 'clochette'; 
-      } catch (e) { return 'clochette'; }
+      try { const saved = localStorage.getItem('sanctuaire_sound_type'); return saved ? JSON.parse(saved) : 'clochette'; } catch (e) { return 'clochette'; }
   });
 
-  // NOUVEAU STATE : Intervalle entre les sonneries (en ms)
   const [bellInterval, setBellInterval] = useState(() => {
-      try { 
-          const saved = localStorage.getItem('sanctuaire_bell_interval'); 
-          return saved ? JSON.parse(saved) : 1000; 
-      } catch (e) { return 1000; }
+      try { const saved = localStorage.getItem('sanctuaire_bell_interval'); return saved ? JSON.parse(saved) : 1000; } catch (e) { return 1000; }
   });
 
   useEffect(() => { localStorage.setItem('sanctuaire_sound_type', JSON.stringify(soundType)); }, [soundType]);
   useEffect(() => { localStorage.setItem('sanctuaire_bell_interval', JSON.stringify(bellInterval)); }, [bellInterval]);
 
-  // MISE À JOUR DE LA CLASSE SUR HTML (DocumentRoot)
   useEffect(() => { 
     localStorage.setItem('sanctuaire_theme', JSON.stringify(theme)); 
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    if (theme === 'dark') document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
   }, [theme]);
 
-  // Initialisation intelligente des étapes
   const [stepsConfig, setStepsConfig] = useState(() => {
     try {
       const savedDurations = JSON.parse(localStorage.getItem('sanctuaire_durations') || '{}');
-      return STEPS_CONTENT.map(step => ({
-        ...step,
-        duration: savedDurations[step.id] || step.defaultDuration
-      }));
+      return STEPS_CONTENT.map(step => ({ ...step, duration: savedDurations[step.id] || step.defaultDuration }));
     } catch (e) {
       return STEPS_CONTENT.map(step => ({ ...step, duration: step.defaultDuration }));
     }
   });
 
   useEffect(() => {
-    const durationsToSave = stepsConfig.reduce((acc, step) => {
-      acc[step.id] = step.duration;
-      return acc;
-    }, {});
+    const durationsToSave = stepsConfig.reduce((acc, step) => { acc[step.id] = step.duration; return acc; }, {});
     localStorage.setItem('sanctuaire_durations', JSON.stringify(durationsToSave));
   }, [stepsConfig]);
 
@@ -312,7 +271,6 @@ export default function App() {
   return (
     <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'dark bg-stone-900 text-white' : 'bg-stone-50 text-stone-900'}`}>
       
-      {/* Affichage Conditionnel */}
       {view === 'guided' ? (
         <GuidedSession onExit={goHome} stepsConfig={stepsConfig} theme={theme} soundType={soundType} bellInterval={bellInterval} />
       ) : (
@@ -334,31 +292,12 @@ export default function App() {
             </div>
 
             <div className="shrink-0 flex flex-col items-center gap-4">
-              <img 
-                src="/logo.jpg" 
-                alt="Logo" 
-                className={`h-72 w-auto rounded-lg shadow-md border ${theme === 'dark' ? 'border-stone-700' : 'border-stone-200'}`}
-                onError={(e) => {
-                   e.target.style.display = 'none';
-                }}
-              />
-              
+              <img src="/logo.jpg" alt="Logo" className={`h-72 w-auto rounded-lg shadow-md border ${theme === 'dark' ? 'border-stone-700' : 'border-stone-200'}`} onError={(e) => { e.target.style.display = 'none'; }} />
               <div className="flex gap-2">
-                 <button 
-                  onClick={() => setView('settings')}
-                  className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800 text-stone-400' : 'hover:bg-stone-200 text-stone-600'}`}
-                >
-                  <Settings size={20} />
-                </button>
-                <button 
-                  onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
-                  className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800' : 'hover:bg-stone-200'}`}
-                >
-                  {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-                </button>
+                 <button onClick={() => setView('settings')} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800 text-stone-400' : 'hover:bg-stone-200 text-stone-600'}`}><Settings size={20} /></button>
+                <button onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800' : 'hover:bg-stone-200'}`}>{theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}</button>
               </div>
             </div>
-            
           </header>
 
           <main className="max-w-2xl mx-auto px-4 pb-20 pt-4">
@@ -367,24 +306,20 @@ export default function App() {
                 <div className="grid gap-4">
                   <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group" >
                     <div onClick={() => setView('guided')} className="flex items-center gap-4">
-                      <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-100 text-indigo-600'}`}>
-                        <BookOpen size={24} />
-                      </div>
+                      <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-100 text-indigo-600'}`}><BookOpen size={24} /></div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg">Oraison guidée</h3>
-                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>
-                          Un parcours balisé : préparation, entrée corps et fin de l'oraison.
-                        </p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>Un parcours balisé : préparation, entrée corps et fin de l'oraison.</p>
                       </div>
                       <ChevronRight className="text-stone-300" />
                     </div>
                   </Card>
+                  
+                  {/* Suppression du bouton Minuteur Libre */}
 
                   <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group">
                     <div onClick={() => setView('journal')} className="flex items-center gap-4">
-                      <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-amber-900 text-amber-300' : 'bg-amber-100 text-amber-600'}`}>
-                        <PenTool size={24} />
-                      </div>
+                      <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-amber-900 text-amber-300' : 'bg-amber-100 text-amber-600'}`}><PenTool size={24} /></div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg">Carnet Spirituel</h3>
                         <p className={`text-sm ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>Notez la Parole de Dieu, la pensée qui vous touche, la résolution pour la journée...</p>
@@ -393,13 +328,13 @@ export default function App() {
                     </div>
                   </Card>
                 </div>
-
                 <div className={`mt-8 p-6 rounded-2xl text-center italic border ${theme === 'dark' ? 'bg-stone-800 text-white border-stone-700' : 'bg-stone-100 text-stone-800 border-stone-200'}`}>
                   "{TEXTS[Math.floor(Math.random() * TEXTS.length)].content}"
                 </div>
               </div>
             )}
-
+            
+            {/* Suppression du composant FreeTimer */}
             {view === 'journal' && <Journal entries={journalEntries} setEntries={setJournalEntries} onExit={goHome} theme={theme} />}
             {view === 'settings' && <SettingsView stepsConfig={stepsConfig} setStepsConfig={setStepsConfig} onExit={goHome} theme={theme} soundType={soundType} setSoundType={setSoundType} bellInterval={bellInterval} setBellInterval={setBellInterval} />}
           </main>
@@ -454,7 +389,7 @@ function GuidedSession({ onExit, stepsConfig, theme, soundType, bellInterval }) 
                  setIsActive(false);
                  endTimeRef.current = null;
                  
-                 playBell(soundType);
+                 // CORRECTION: Suppression du playBell(soundType) redondant ici
                  
                   let dongsCount = 0;
                   if (stepIndex === 0) dongsCount = 2;
@@ -578,7 +513,7 @@ function GuidedSession({ onExit, stepsConfig, theme, soundType, bellInterval }) 
 function SettingsView({ stepsConfig, setStepsConfig, onExit, theme, soundType, setSoundType, bellInterval, setBellInterval }) {
   const updateDuration = (index, change) => {
     const newSteps = [...stepsConfig];
-    const newDuration = Math.max(10, newSteps[index].duration + change * 10);
+    const newDuration = Math.max(30, newSteps[index].duration + change * 30);
     newSteps[index].duration = newDuration;
     setStepsConfig(newSteps);
   };
