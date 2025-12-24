@@ -138,105 +138,28 @@ const TEXTS = [
   { source: "Isaïe 43, 1", content: "Ne crains rien, car je te rachète, Je t'appelle par ton nom : tu es à moi !" },
 ];
 
-// --- GESTION AUDIO (WAV avec Fallback Synthétiseur) ---
-
-let audioCtx = null;
-const audioBuffers = {};
-
-const initAudioContext = () => {
-  // Gestion de la compatibilité navigateur
-  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContextClass) return null;
-
-  if (!audioCtx) {
-    audioCtx = new AudioContextClass();
-  }
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
-  return audioCtx;
-};
-
-// Fallback : Synthétiseur si le fichier WAV ne marche pas
-const playSynthBell = (type) => {
-    const ctx = initAudioContext();
-    if (!ctx) return;
-
-    const osc = ctx.createOscillator();
-    const gainNode = ctx.createGain();
-    osc.connect(gainNode);
-    gainNode.connect(ctx.destination);
-    
-    let frequency = 2000;
-    let duration = 0.7;
-    let waveType = 'sine';
-
-    switch (type) {
-        case 'cloche':
-            frequency = 550; duration = 2.5; waveType = 'sine'; break;
-        case 'gong':
-            frequency = 140; duration = 4.0; waveType = 'triangle'; break;
-        case 'clochette':
-        default:
-            frequency = 2000; duration = 0.7; waveType = 'sine'; break;
-    }
-    
-    osc.type = waveType;
-    osc.frequency.setValueAtTime(frequency, ctx.currentTime);
-    
-    gainNode.gain.setValueAtTime(0, ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(type === 'gong' ? 0.3 : 0.1, ctx.currentTime + 0.05);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration); 
-    
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + duration);
-};
-
-const loadSound = async (filename) => {
-  if (audioBuffers[filename]) return audioBuffers[filename];
+// --- Fonction Sonore (LECTURE DE FICHIERS WAV) ---
+const playBell = (type = 'clochette') => {
   try {
-    const response = await fetch(filename);
-    if (!response.ok) throw new Error("Fichier non trouvé");
-    const arrayBuffer = await response.arrayBuffer();
-    const ctx = initAudioContext();
-    if (!ctx) return null;
-    const decodedAudio = await ctx.decodeAudioData(arrayBuffer);
-    audioBuffers[filename] = decodedAudio;
-    return decodedAudio;
-  } catch (error) {
-    // Silencieux pour ne pas spammer la console si pas de fichier
-    // console.warn(`Fichier audio ${filename} non chargé, utilisation du synthé.`);
-    return null;
-  }
-};
-
-const preloadSounds = () => {
-  ['/clochette.wav', '/cloche.wav', '/gong.wav'].forEach(loadSound);
-};
-
-const playBell = async (type = 'clochette') => {
-  try {
-    const ctx = initAudioContext();
-    if (!ctx) return;
-
-    // Essayer de charger/jouer le fichier WAV
-    const buffer = await loadSound(`/${type}.wav`);
+    // Création d'un objet Audio pointant vers le fichier dans le dossier public
+    const audioPath = `/${type}.wav`;
+    const audio = new Audio(audioPath);
+    audio.volume = 1.0; 
     
-    if (buffer) {
-      const source = ctx.createBufferSource();
-      source.buffer = buffer;
-      source.connect(ctx.destination);
-      source.start(0);
-    } else {
-      // Si pas de fichier, jouer le son synthétisé
-      playSynthBell(type);
+    // Tentative de lecture avec gestion d'erreur améliorée
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        console.warn(`Impossible de lire le son ${audioPath}. Vérifiez que le fichier existe dans le dossier public.`, error);
+      });
     }
-  } catch (e) {
-    // Fallback ultime
-    playSynthBell(type);
+
+  } catch (e) { 
+    console.error("Erreur système audio", e); 
   }
 };
 
+// Fonction helper pour jouer plusieurs fois
 const playBellsSequence = (count, interval, type = 'clochette') => {
   for (let i = 0; i < count; i++) {
     setTimeout(() => {
@@ -254,7 +177,7 @@ const useWakeLock = () => {
       try {
         wakeLockRef.current = await navigator.wakeLock.request('screen');
       } catch (err) {
-        // Silently ignore errors
+        // Silently ignore errors if wake lock is not allowed
       }
     }
   };
@@ -276,6 +199,7 @@ const useWakeLock = () => {
         requestWakeLock();
       }
     };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
@@ -323,12 +247,17 @@ export default function App() {
   });
   useEffect(() => { localStorage.setItem('sanctuaire_journal', JSON.stringify(journalEntries)); }, [journalEntries]);
 
-  // INITIALISATION DU THÈME
+  // INITIALISATION DU THÈME AVEC DÉTECTION DU SYSTÈME
   const [theme, setTheme] = useState(() => {
     try { 
       const saved = localStorage.getItem('sanctuaire_theme'); 
-      if (saved) return JSON.parse(saved);
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+      if (saved) {
+        return JSON.parse(saved);
+      }
+      // Si aucune préférence sauvegardée, on regarde le système
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
       return 'light'; 
     } catch (e) { return 'light'; }
   });
@@ -340,16 +269,19 @@ export default function App() {
       } catch (e) { return 'clochette'; }
   });
 
+  // NOUVEAU STATE : Intervalle entre les sonneries (en ms)
   const [bellInterval, setBellInterval] = useState(() => {
       try { 
           const saved = localStorage.getItem('sanctuaire_bell_interval'); 
-          return saved ? JSON.parse(saved) : 1000; 
-      } catch (e) { return 1000; }
+          // Default to 7000 because default sound is clochette
+          return saved ? JSON.parse(saved) : 7000; 
+      } catch (e) { return 7000; }
   });
 
   useEffect(() => { localStorage.setItem('sanctuaire_sound_type', JSON.stringify(soundType)); }, [soundType]);
   useEffect(() => { localStorage.setItem('sanctuaire_bell_interval', JSON.stringify(bellInterval)); }, [bellInterval]);
 
+  // MISE À JOUR DE LA CLASSE SUR HTML (DocumentRoot)
   useEffect(() => { 
     localStorage.setItem('sanctuaire_theme', JSON.stringify(theme)); 
     if (theme === 'dark') {
@@ -359,11 +291,7 @@ export default function App() {
     }
   }, [theme]);
 
-  // Chargement des sons au démarrage
-  useEffect(() => {
-    preloadSounds();
-  }, []);
-
+  // Initialisation intelligente des étapes
   const [stepsConfig, setStepsConfig] = useState(() => {
     try {
       const savedDurations = JSON.parse(localStorage.getItem('sanctuaire_durations') || '{}');
@@ -389,6 +317,7 @@ export default function App() {
   return (
     <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'dark bg-stone-900 text-white' : 'bg-stone-50 text-stone-900'}`}>
       
+      {/* Affichage Conditionnel */}
       {view === 'guided' ? (
         <GuidedSession onExit={goHome} stepsConfig={stepsConfig} theme={theme} soundType={soundType} bellInterval={bellInterval} />
       ) : (
@@ -654,6 +583,7 @@ function GuidedSession({ onExit, stepsConfig, theme, soundType, bellInterval }) 
 function SettingsView({ stepsConfig, setStepsConfig, onExit, theme, soundType, setSoundType, bellInterval, setBellInterval }) {
   const updateDuration = (index, change) => {
     const newSteps = [...stepsConfig];
+    // MODIF : Pas de 30s
     const newDuration = Math.max(30, newSteps[index].duration + change * 30);
     newSteps[index].duration = newDuration;
     setStepsConfig(newSteps);
@@ -685,9 +615,10 @@ function SettingsView({ stepsConfig, setStepsConfig, onExit, theme, soundType, s
                         onClick={() => { 
                             setSoundType(type); 
                             playBell(type);
-                            if(type === 'clochette') setBellInterval(1000);
-                            if(type === 'cloche') setBellInterval(2000);
-                            if(type === 'gong') setBellInterval(3500);
+                            // MODIF : Intervalle automatique à 7s pour clochette, 4s pour cloche, 10s pour gong
+                            if(type === 'clochette') setBellInterval(7000);
+                            if(type === 'cloche') setBellInterval(4000);
+                            if(type === 'gong') setBellInterval(10000);
                         }}
                         className={`py-3 px-2 rounded-xl text-sm font-medium transition-all border-2 flex flex-col items-center gap-2
                             ${soundType === type 
@@ -720,7 +651,8 @@ function SettingsView({ stepsConfig, setStepsConfig, onExit, theme, soundType, s
                         {(bellInterval / 1000).toFixed(1)}s
                     </div>
                     <button 
-                        onClick={() => setBellInterval(prev => Math.min(5000, prev + 100))}
+                        // MODIF : Max augmenté à 30000 (30s)
+                        onClick={() => setBellInterval(prev => Math.min(30000, prev + 100))}
                         className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${theme === 'dark' ? 'bg-stone-700 hover:bg-stone-600 text-stone-300' : 'bg-stone-100 hover:bg-stone-200 text-stone-600'}`}
                     >
                         <Plus size={16} />
