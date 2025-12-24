@@ -213,7 +213,7 @@ function getSoundDuration(type) {
     if (buffer) {
         return buffer.duration;
     }
-    // Durées par défaut si fichier non chargé (pour calcul intervalle)
+    // Fallbacks si le fichier n'est pas encore chargé
     switch (type) {
         case 'clochette': return 0.7;
         case 'cloche': return 2.5;
@@ -235,7 +235,6 @@ function playSoundFromCache(type = 'clochette') {
     source.connect(ctx.destination);
     source.start(0);
   } else {
-    // Si pas encore en cache, on tente de charger
     loadSoundToCache(filename).then(b => {
         if(b) {
             const source = ctx.createBufferSource();
@@ -249,8 +248,8 @@ function playSoundFromCache(type = 'clochette') {
   }
 }
 
+// 2) Calcul de l'intervalle : durée + 1 seconde
 function playBellsSequence(count, type = 'clochette') {
-  // Calcul automatique de l'intervalle : durée du son + 1 seconde
   const soundDuration = getSoundDuration(type);
   const interval = (soundDuration + 1) * 1000; // en ms
 
@@ -282,20 +281,24 @@ const useWakeLock = () => {
   return { requestWakeLock, releaseWakeLock };
 };
 
-// --- Composants UI ---
+// --- Composants Utilitaires ---
+const Button = ({ children, onClick, variant = 'primary', className = '' }) => {
+  const baseStyle = "px-4 py-2 rounded-xl transition-all duration-200 font-medium flex items-center justify-center gap-2";
+  const variants = {
+    primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg",
+    secondary: "bg-stone-200 text-stone-800 hover:bg-stone-300",
+    ghost: "text-stone-600 hover:bg-stone-100 hover:text-indigo-600",
+    outline: "border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50"
+  };
+  return <button onClick={onClick} className={`${baseStyle} ${variants[variant]} ${className}`}>{children}</button>;
+};
 
 const Card = ({ children, className = '', theme }) => {
   const isDark = theme === 'dark';
   return (
-    <div className={`rounded-2xl shadow-sm border p-6 transition-colors duration-300 ${isDark ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-100'} ${className}`}>
-      {children}
-    </div>
+    <div className={`rounded-2xl shadow-sm border p-6 transition-colors duration-300 ${isDark ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-100'} ${className}`}>{children}</div>
   );
 };
-
-const Button = ({ children, onClick, variant = 'primary', className = '' }) => {
-    return <button onClick={onClick} className={className}>{children}</button>
-}
 
 // --- Application Principale ---
 
@@ -321,6 +324,8 @@ export default function App() {
       try { const saved = localStorage.getItem('sanctuaire_sound_type'); return saved ? JSON.parse(saved) : 'clochette'; } catch (e) { return 'clochette'; }
   });
 
+  // 1) Suppression de l'intervalle dans le state
+
   useEffect(() => { localStorage.setItem('sanctuaire_sound_type', JSON.stringify(soundType)); }, [soundType]);
 
   useEffect(() => { 
@@ -341,13 +346,8 @@ export default function App() {
   const [stepsConfig, setStepsConfig] = useState(() => {
     try {
       const savedDurations = JSON.parse(localStorage.getItem('sanctuaire_durations') || '{}');
-      return STEPS_CONTENT.map(step => ({
-        ...step,
-        duration: savedDurations[step.id] || step.defaultDuration
-      }));
-    } catch (e) {
-      return STEPS_CONTENT.map(step => ({ ...step, duration: step.defaultDuration }));
-    }
+      return STEPS_CONTENT.map(step => ({ ...step, duration: savedDurations[step.id] || step.defaultDuration }));
+    } catch (e) { return STEPS_CONTENT.map(step => ({ ...step, duration: step.defaultDuration })); }
   });
 
   useEffect(() => {
@@ -361,16 +361,20 @@ export default function App() {
   return (
     <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'dark bg-stone-900 text-white' : 'bg-stone-50 text-stone-900'}`}>
       
+      {/* Affichage Conditionnel */}
       {view === 'guided' ? (
         <GuidedSession onExit={goHome} stepsConfig={stepsConfig} theme={theme} soundType={soundType} />
       ) : (
         <>
           <header className="px-6 py-6 flex justify-between items-start gap-6 max-w-2xl mx-auto">
+            
+            {/* 4) Gauche : Texte + Boutons */}
             <div className="flex-1 flex flex-col items-start gap-4">
               <div className="text-left">
                   <h1 className={`text-3xl font-bold mb-1 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-900'}`}>Benedictus</h1>
                   <p className={`text-sm italic ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>Vive Jésus dans nos cœurs !</p>
               </div>
+              
               <div className="cursor-pointer" onClick={goHome}>
                 <blockquote className={`font-serif text-sm italic leading-relaxed border-l-2 pl-3 ${theme === 'dark' ? 'text-stone-200 border-indigo-500' : 'text-stone-800 border-indigo-300'}`}>
                   "Voici que je me tiens à la porte, et je frappe. Si quelqu’un entend ma voix et ouvre la porte, j’entrerai chez lui ; je prendrai mon repas avec lui, et lui avec moi."
@@ -379,14 +383,17 @@ export default function App() {
                   Ap 3,20
                 </div>
               </div>
+
+               {/* Boutons déplacés ici */}
+               <div className="flex gap-2">
+                 <button onClick={() => setView('settings')} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800 text-stone-400' : 'hover:bg-stone-200 text-stone-600'}`}><Settings size={20} /></button>
+                 <button onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800' : 'hover:bg-stone-200'}`}>{theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}</button>
+              </div>
+
             </div>
 
             <div className="shrink-0 flex flex-col items-center gap-4">
               <img src="/logo.jpg" alt="Logo" className={`h-72 w-auto rounded-lg shadow-md border ${theme === 'dark' ? 'border-stone-700' : 'border-stone-200'}`} onError={(e) => { e.target.style.display = 'none'; }} />
-              <div className="flex gap-2">
-                 <button onClick={() => setView('settings')} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800 text-stone-400' : 'hover:bg-stone-200 text-stone-600'}`}><Settings size={20} /></button>
-                <button onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800' : 'hover:bg-stone-200'}`}>{theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}</button>
-              </div>
             </div>
           </header>
 
@@ -404,7 +411,6 @@ export default function App() {
                       <ChevronRight className="text-stone-300" />
                     </div>
                   </Card>
-
                   <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group">
                     <div onClick={() => setView('journal')} className="flex items-center gap-4">
                       <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-amber-900 text-amber-300' : 'bg-amber-100 text-amber-600'}`}><PenTool size={24} /></div>
@@ -471,8 +477,9 @@ function GuidedSession({ onExit, stepsConfig, theme, soundType }) {
              const remaining = Math.ceil((endTimeRef.current - now) / 1000);
              
              if (remaining <= 0) {
+                 // 3) TRANSITION IMMÉDIATE + SON EN PARALLÈLE
                  setTimeLeft(0);
-                 setIsActive(false);
+                 setIsActive(false); 
                  endTimeRef.current = null;
                  
                   let dongsCount = 0;
@@ -481,21 +488,19 @@ function GuidedSession({ onExit, stepsConfig, theme, soundType }) {
                   else if (stepIndex === 2) dongsCount = 2;
                   else if (stepIndex === 3) dongsCount = 1;
 
-                  // Lecture du son en parallèle
+                  // Lancement du son
                   playBellsSequence(dongsCount, soundType);
 
-                  // Transition immédiate vers l'étape suivante
                   if (stepIndex < stepsConfig.length - 1) {
                       const nextIdx = stepIndex + 1;
                       const nextDuration = stepsConfig[nextIdx].duration;
                       
-                      // Mise à jour de l'état pour la nouvelle étape
+                      // Changement d'étape instantané
                       setStepIndex(nextIdx);
                       setTimeLeft(nextDuration);
-                      
-                      // Démarrage immédiat du nouveau timer
-                      endTimeRef.current = Date.now() + nextDuration * 1000;
-                      setIsActive(true);
+                      // On fixe la nouvelle cible immédiatement
+                      endTimeRef.current = Date.now() + nextDuration * 1000; 
+                      setIsActive(true); 
                   } else { 
                       onExit(); 
                   }
@@ -510,7 +515,6 @@ function GuidedSession({ onExit, stepsConfig, theme, soundType }) {
   }, [isActive, stepIndex, stepsConfig, onExit, soundType]);
 
   const toggleTimer = () => setIsActive(!isActive);
-  
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -619,6 +623,7 @@ function SettingsView({ stepsConfig, setStepsConfig, onExit, theme, soundType, s
                     </button>
                 ))}
             </div>
+            {/* 1) Plus d'intervalle à saisir ici */}
         </div>
 
         <h3 className="text-sm font-semibold text-stone-500 uppercase tracking-wide mb-6">Durée des étapes</h3>
@@ -647,55 +652,4 @@ function SettingsView({ stepsConfig, setStepsConfig, onExit, theme, soundType, s
     </div>
   );
 }
-
 // ... Journal component unchanged
-function Journal({ entries, setEntries, onExit, theme }) {
-  const [text, setText] = useState('');
-  const saveEntry = () => {
-    if (!text.trim()) return;
-    const newEntry = { id: Date.now(), date: new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }), text: text };
-    setEntries([newEntry, ...entries]); setText('');
-  };
-  const deleteEntry = (id) => { setEntries(entries.filter(e => e.id !== id)); };
-
-  return (
-    <div className="h-[85vh] flex flex-col">
-       <div className="flex justify-between items-center mb-4">
-        <h2 className={`text-2xl font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>Mon Carnet</h2>
-        <button onClick={onExit} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-700' : 'hover:bg-stone-200'}`}><X size={24} /></button>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6 h-full overflow-hidden">
-        <div className="flex flex-col gap-4">
-          <Card theme={theme} className="flex-1 flex flex-col p-4">
-            <label className="text-sm font-semibold text-stone-500 mb-2 uppercase tracking-wide">Nouvelle Note</label>
-            <textarea 
-              className={`flex-1 w-full p-4 rounded-lg resize-none focus:outline-none focus:ring-2 leading-relaxed ${theme === 'dark' ? 'bg-stone-900 focus:ring-indigo-800 text-white' : 'bg-stone-50 focus:ring-indigo-200 text-stone-900'}`}
-              placeholder="Quelles grâces avez-vous reçues ? Quelle résolution prenez-vous ?"
-              value={text} onChange={(e) => setText(e.target.value)}
-            />
-            <div className="mt-4 flex justify-end">
-              <Button onClick={saveEntry} disabled={!text.trim()}>Enregistrer</Button>
-            </div>
-          </Card>
-        </div>
-
-        <div className="overflow-y-auto pr-2 space-y-4 pb-10 custom-scrollbar">
-          {entries.length === 0 && (
-            <div className="text-center py-10 text-stone-400">
-              <PenTool size={48} className="mx-auto mb-4 opacity-20" />
-              <p>Votre carnet est vide pour le moment.</p>
-            </div>
-          )}
-          {entries.map(entry => (
-            <div key={entry.id} className={`p-5 rounded-xl border shadow-sm relative group animate-fade-in-up ${theme === 'dark' ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-100'}`}>
-              <div className="text-xs font-bold text-indigo-500 uppercase mb-2">{entry.date}</div>
-              <p className={`whitespace-pre-wrap font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>{entry.text}</p>
-              <button onClick={() => deleteEntry(entry.id)} className="absolute top-2 right-2 p-2 text-stone-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><X size={16} /></button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
