@@ -25,6 +25,7 @@ import {
 
 // --- Données et Contenu ---
 
+// Ces définitions contiennent du JSX (mise en forme) et ne doivent pas être écrasées par le LocalStorage brut.
 const STEPS_CONTENT = [
   {
     id: 'corps',
@@ -45,6 +46,8 @@ const STEPS_CONTENT = [
     title: 'Entrée en oraison',
     description: (
       <>
+        {/* Ajout de '!' pour forcer les couleurs contre le mode sombre automatique de Samsung */}
+        {/* Utilisation de text-xs partout pour uniformiser et gagner de la place */}
         <span className="text-xs text-stone-900 dark:!text-white block mb-1 leading-tight">
         Allons à la rencontre de Dieu qui nous attend,<br />
         faisons un beau et lent signe de croix et disons :<br /><br />
@@ -132,7 +135,7 @@ const TEXTS = [
   { source: "Saint Augustin", content: "Tu nous as faits pour toi, Seigneur, et notre cœur est sans repos tant qu'il ne demeure en toi." },
   { source: "Matthieu 11, 28", content: "Venez à moi, vous tous qui êtes fatigués et chargés, et je vous donnerai du repos." },
   { source: "Sainte Thérèse d'Avila", content: "L'oraison n'est à mon avis qu'un commerce intime d'amitié où l'on s'entretient souvent seul à seul avec ce Dieu dont on se sait aimé." },
-  { source: "Isaïe 43,1", content: "Ne crains rien, car je te rachète, Je t'appelle par ton nom : tu es à moi !" },
+  { source: "Isaïe 43, 1", content: "Ne crains rien, car je te rachète, Je t'appelle par ton nom : tu es à moi !" },
 ];
 
 // --- Fonction Sonore ---
@@ -199,7 +202,7 @@ const useWakeLock = () => {
       try {
         wakeLockRef.current = await navigator.wakeLock.request('screen');
       } catch (err) {
-        // Silently ignore errors
+        // Silently ignore errors if wake lock is not allowed
       }
     }
   };
@@ -263,19 +266,25 @@ const Card = ({ children, className = '', theme }) => {
 export default function App() {
   const [view, setView] = useState('home'); 
   
-  // Persistance (LocalStorage)
+  // MISE A JOUR DU TITRE DE L'ONGLET
+  useEffect(() => {
+    document.title = "Benedictus";
+  }, []);
+  
+  // Persistance (LocalStorage avec nouvelles clés 'benedictus_')
   const [journalEntries, setJournalEntries] = useState(() => {
-    try { const saved = localStorage.getItem('sanctuaire_journal'); return saved ? JSON.parse(saved) : []; } catch (e) { return []; }
+    try { const saved = localStorage.getItem('benedictus_journal'); return saved ? JSON.parse(saved) : []; } catch (e) { return []; }
   });
-  useEffect(() => { localStorage.setItem('sanctuaire_journal', JSON.stringify(journalEntries)); }, [journalEntries]);
+  useEffect(() => { localStorage.setItem('benedictus_journal', JSON.stringify(journalEntries)); }, [journalEntries]);
 
-  // INITIALISATION DU THÈME
+  // INITIALISATION DU THÈME AVEC DÉTECTION DU SYSTÈME
   const [theme, setTheme] = useState(() => {
     try { 
-      const saved = localStorage.getItem('sanctuaire_theme'); 
+      const saved = localStorage.getItem('benedictus_theme'); 
       if (saved) {
         return JSON.parse(saved);
       }
+      // Si aucune préférence sauvegardée, on regarde le système
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         return 'dark';
       }
@@ -285,23 +294,25 @@ export default function App() {
   
   const [soundType, setSoundType] = useState(() => {
       try { 
-          const saved = localStorage.getItem('sanctuaire_sound_type'); 
+          const saved = localStorage.getItem('benedictus_sound_type'); 
           return saved ? JSON.parse(saved) : 'clochette'; 
       } catch (e) { return 'clochette'; }
   });
 
+  // NOUVEAU STATE : Intervalle entre les sonneries (en ms)
   const [bellInterval, setBellInterval] = useState(() => {
       try { 
-          const saved = localStorage.getItem('sanctuaire_bell_interval'); 
+          const saved = localStorage.getItem('benedictus_bell_interval'); 
           return saved ? JSON.parse(saved) : 1000; 
       } catch (e) { return 1000; }
   });
 
-  useEffect(() => { localStorage.setItem('sanctuaire_sound_type', JSON.stringify(soundType)); }, [soundType]);
-  useEffect(() => { localStorage.setItem('sanctuaire_bell_interval', JSON.stringify(bellInterval)); }, [bellInterval]);
+  useEffect(() => { localStorage.setItem('benedictus_sound_type', JSON.stringify(soundType)); }, [soundType]);
+  useEffect(() => { localStorage.setItem('benedictus_bell_interval', JSON.stringify(bellInterval)); }, [bellInterval]);
 
+  // MISE À JOUR DE LA CLASSE SUR HTML (DocumentRoot)
   useEffect(() => { 
-    localStorage.setItem('sanctuaire_theme', JSON.stringify(theme)); 
+    localStorage.setItem('benedictus_theme', JSON.stringify(theme)); 
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
@@ -309,9 +320,10 @@ export default function App() {
     }
   }, [theme]);
 
+  // Initialisation intelligente des étapes
   const [stepsConfig, setStepsConfig] = useState(() => {
     try {
-      const savedDurations = JSON.parse(localStorage.getItem('sanctuaire_durations') || '{}');
+      const savedDurations = JSON.parse(localStorage.getItem('benedictus_durations') || '{}');
       return STEPS_CONTENT.map(step => ({
         ...step,
         duration: savedDurations[step.id] || step.defaultDuration
@@ -326,7 +338,7 @@ export default function App() {
       acc[step.id] = step.duration;
       return acc;
     }, {});
-    localStorage.setItem('sanctuaire_durations', JSON.stringify(durationsToSave));
+    localStorage.setItem('benedictus_durations', JSON.stringify(durationsToSave));
   }, [stepsConfig]);
 
   const goHome = () => setView('home');
@@ -334,14 +346,14 @@ export default function App() {
   return (
     <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'dark bg-stone-900 text-white' : 'bg-stone-50 text-stone-900'}`}>
       
+      {/* Affichage Conditionnel */}
       {view === 'guided' ? (
         <GuidedSession onExit={goHome} stepsConfig={stepsConfig} theme={theme} soundType={soundType} bellInterval={bellInterval} />
       ) : (
         <>
           <header className="px-6 py-6 flex justify-between items-start gap-6 max-w-2xl mx-auto">
-            
-            {/* Gauche : Texte uniquement */}
             <div className="flex-1 flex flex-col items-start gap-4">
+              
               <div className="text-left">
                   <h1 className={`text-3xl font-bold mb-1 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-900'}`}>Benedictus</h1>
                   <p className={`text-sm italic ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>Vive Jésus dans nos cœurs !</p>
@@ -357,7 +369,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Droite : Logo + Boutons en dessous */}
             <div className="shrink-0 flex flex-col items-center gap-4">
               <img 
                 src="/logo.jpg" 
@@ -389,7 +400,6 @@ export default function App() {
           <main className="max-w-2xl mx-auto px-4 pb-20 pt-4">
             {view === 'home' && (
               <div className="space-y-8 animate-fade-in mt-4">
-                
                 <div className="grid gap-4">
                   <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group" >
                     <div onClick={() => setView('guided')} className="flex items-center gap-4">
@@ -449,7 +459,6 @@ export default function App() {
   );
 }
 
-// ... (le reste des composants GuidedSession, SettingsView, FreeTimer, Journal reste inchangé) ...
 // --- Sous-Composants ---
 
 function GuidedSession({ onExit, stepsConfig, theme, soundType, bellInterval }) {
@@ -618,7 +627,7 @@ function GuidedSession({ onExit, stepsConfig, theme, soundType, bellInterval }) 
 function SettingsView({ stepsConfig, setStepsConfig, onExit, theme, soundType, setSoundType, bellInterval, setBellInterval }) {
   const updateDuration = (index, change) => {
     const newSteps = [...stepsConfig];
-    const newDuration = Math.max(30, newSteps[index].duration + change * 30);
+    const newDuration = Math.max(10, newSteps[index].duration + change * 10);
     newSteps[index].duration = newDuration;
     setStepsConfig(newSteps);
   };
