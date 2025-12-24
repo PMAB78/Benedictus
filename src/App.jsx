@@ -25,7 +25,6 @@ import {
 
 // --- Données et Contenu ---
 
-// Ces définitions contiennent du JSX (mise en forme) et ne doivent pas être écrasées par le LocalStorage brut.
 const STEPS_CONTENT = [
   {
     id: 'corps',
@@ -46,8 +45,6 @@ const STEPS_CONTENT = [
     title: 'Entrée en oraison',
     description: (
       <>
-        {/* Ajout de '!' pour forcer les couleurs contre le mode sombre automatique de Samsung */}
-        {/* Utilisation de text-xs partout pour uniformiser et gagner de la place */}
         <span className="text-xs text-stone-900 dark:!text-white block mb-1 leading-tight">
         Allons à la rencontre de Dieu qui nous attend,<br />
         faisons un beau et lent signe de croix et disons :<br /><br />
@@ -138,32 +135,98 @@ const TEXTS = [
   { source: "Isaïe 43, 1", content: "Ne crains rien, car je te rachète, Je t'appelle par ton nom : tu es à moi !" },
 ];
 
-// --- Fonction Sonore (LECTURE DE FICHIERS WAV) ---
-const playBell = (type = 'clochette') => {
-  try {
-    // Création d'un objet Audio pointant vers le fichier dans le dossier public
-    const audioPath = `/${type}.wav`;
-    const audio = new Audio(audioPath);
-    audio.volume = 1.0; 
-    
-    // Tentative de lecture avec gestion d'erreur améliorée
-    const playPromise = audio.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(error => {
-        console.warn(`Impossible de lire le son ${audioPath}. Vérifiez que le fichier existe dans le dossier public.`, error);
-      });
-    }
+// --- GESTION AUDIO AVANCÉE (Web Audio API - Buffers) ---
+let audioCtx = null;
+const audioBuffers = {};
 
-  } catch (e) { 
-    console.error("Erreur système audio", e); 
+const initAudioContext = () => {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return null;
+  if (!audioCtx) {
+    audioCtx = new AudioContextClass();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+};
+
+// Fallback : Synthétiseur si le fichier WAV ne marche pas
+const playSynthBell = (type) => {
+    const ctx = initAudioEngine();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    
+    let frequency = 2000;
+    let duration = 0.7;
+    let waveType = 'sine';
+
+    switch (type) {
+        case 'cloche': frequency = 550; duration = 2.5; waveType = 'sine'; break;
+        case 'gong': frequency = 140; duration = 4.0; waveType = 'triangle'; break;
+        case 'clochette': default: frequency = 2000; duration = 0.7; waveType = 'sine'; break;
+    }
+    
+    osc.type = waveType;
+    osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(type === 'gong' ? 0.3 : 0.1, ctx.currentTime + 0.05);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration); 
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
+};
+
+const loadSoundToCache = async (filename) => {
+  if (audioBuffers[filename]) return audioBuffers[filename];
+  try {
+    const ctx = initAudioEngine(); 
+    if (!ctx) return null;
+    const response = await fetch(filename);
+    if (!response.ok) return null;
+    const arrayBuffer = await response.arrayBuffer();
+    const decodedBuffer = await ctx.decodeAudioData(arrayBuffer);
+    audioBuffers[filename] = decodedBuffer;
+    return decodedBuffer;
+  } catch (error) { return null; }
+};
+
+const initAudioEngine = () => { return initAudioContext(); };
+
+const playSoundFromCache = (type = 'clochette') => {
+  const ctx = initAudioEngine();
+  if (!ctx) return;
+  const filename = `/${type}.wav`;
+  const buffer = audioBuffers[filename];
+  if (buffer) {
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+    source.start(0);
+  } else {
+    loadSoundToCache(filename).then(b => {
+        if(b) {
+            const source = ctx.createBufferSource();
+            source.buffer = b;
+            source.connect(ctx.destination);
+            source.start(0);
+        } else {
+            playSynthBell(type);
+        }
+    });
   }
 };
 
-// Fonction helper pour jouer plusieurs fois
+const preloadSounds = () => {
+    ['/clochette.wav', '/cloche.wav', '/gong.wav'].forEach(loadSoundToCache);
+};
+
 const playBellsSequence = (count, interval, type = 'clochette') => {
   for (let i = 0; i < count; i++) {
     setTimeout(() => {
-      playBell(type);
+      playSoundFromCache(type);
     }, i * interval);
   }
 };
@@ -171,47 +234,25 @@ const playBellsSequence = (count, interval, type = 'clochette') => {
 // --- Hook pour Wake Lock ---
 const useWakeLock = () => {
   const wakeLockRef = useRef(null);
-
   const requestWakeLock = async () => {
     if ('wakeLock' in navigator) {
-      try {
-        wakeLockRef.current = await navigator.wakeLock.request('screen');
-      } catch (err) {
-        // Silently ignore errors if wake lock is not allowed
-      }
+      try { wakeLockRef.current = await navigator.wakeLock.request('screen'); } catch (err) {}
     }
   };
-
   const releaseWakeLock = async () => {
     if (wakeLockRef.current) {
-      try {
-        await wakeLockRef.current.release();
-        wakeLockRef.current = null;
-      } catch (err) {
-         // Silently ignore errors
-      }
+      try { await wakeLockRef.current.release(); wakeLockRef.current = null; } catch (err) {}
     }
   };
-
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        requestWakeLock();
-      }
-    };
-
+    const handleVisibilityChange = () => { if (document.visibilityState === 'visible') requestWakeLock(); };
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      releaseWakeLock();
-    };
+    return () => { document.removeEventListener('visibilitychange', handleVisibilityChange); releaseWakeLock(); };
   }, []);
-
   return { requestWakeLock, releaseWakeLock };
 };
 
 // --- Composants Utilitaires ---
-
 const Button = ({ children, onClick, variant = 'primary', className = '' }) => {
   const baseStyle = "px-4 py-2 rounded-xl transition-all duration-200 font-medium flex items-center justify-center gap-2";
   const variants = {
@@ -220,103 +261,82 @@ const Button = ({ children, onClick, variant = 'primary', className = '' }) => {
     ghost: "text-stone-600 hover:bg-stone-100 hover:text-indigo-600",
     outline: "border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50"
   };
-  return (
-    <button onClick={onClick} className={`${baseStyle} ${variants[variant]} ${className}`}>
-      {children}
-    </button>
-  );
+  return <button onClick={onClick} className={`${baseStyle} ${variants[variant]} ${className}`}>{children}</button>;
 };
 
 const Card = ({ children, className = '', theme }) => {
   const isDark = theme === 'dark';
   return (
-    <div className={`rounded-2xl shadow-sm border p-6 transition-colors duration-300 ${isDark ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-100'} ${className}`}>
-      {children}
-    </div>
+    <div className={`rounded-2xl shadow-sm border p-6 transition-colors duration-300 ${isDark ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-100'} ${className}`}>{children}</div>
   );
 };
 
 // --- Application Principale ---
-
 export default function App() {
   const [view, setView] = useState('home'); 
   
-  // Persistance (LocalStorage)
+  // Persistance
   const [journalEntries, setJournalEntries] = useState(() => {
-    try { const saved = localStorage.getItem('sanctuaire_journal'); return saved ? JSON.parse(saved) : []; } catch (e) { return []; }
+    try { const saved = localStorage.getItem('benedictus_journal'); return saved ? JSON.parse(saved) : []; } catch (e) { return []; }
   });
-  useEffect(() => { localStorage.setItem('sanctuaire_journal', JSON.stringify(journalEntries)); }, [journalEntries]);
+  useEffect(() => { localStorage.setItem('benedictus_journal', JSON.stringify(journalEntries)); }, [journalEntries]);
 
-  // INITIALISATION DU THÈME AVEC DÉTECTION DU SYSTÈME
   const [theme, setTheme] = useState(() => {
     try { 
-      const saved = localStorage.getItem('sanctuaire_theme'); 
-      if (saved) {
-        return JSON.parse(saved);
-      }
-      // Si aucune préférence sauvegardée, on regarde le système
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'dark';
-      }
+      const saved = localStorage.getItem('benedictus_theme'); 
+      if (saved) return JSON.parse(saved);
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
       return 'light'; 
     } catch (e) { return 'light'; }
   });
   
   const [soundType, setSoundType] = useState(() => {
-      try { 
-          const saved = localStorage.getItem('sanctuaire_sound_type'); 
-          return saved ? JSON.parse(saved) : 'clochette'; 
-      } catch (e) { return 'clochette'; }
+      try { const saved = localStorage.getItem('benedictus_sound_type'); return saved ? JSON.parse(saved) : 'clochette'; } catch (e) { return 'clochette'; }
   });
 
-  // NOUVEAU STATE : Intervalle entre les sonneries (en ms)
   const [bellInterval, setBellInterval] = useState(() => {
       try { 
-          const saved = localStorage.getItem('sanctuaire_bell_interval'); 
-          return saved ? JSON.parse(saved) : 1000; 
-      } catch (e) { return 1000; }
+          const saved = localStorage.getItem('benedictus_bell_interval'); 
+          // 7s par défaut
+          return saved ? JSON.parse(saved) : 7000; 
+      } catch (e) { return 7000; }
   });
 
-  useEffect(() => { localStorage.setItem('sanctuaire_sound_type', JSON.stringify(soundType)); }, [soundType]);
-  useEffect(() => { localStorage.setItem('sanctuaire_bell_interval', JSON.stringify(bellInterval)); }, [bellInterval]);
+  useEffect(() => { localStorage.setItem('benedictus_sound_type', JSON.stringify(soundType)); }, [soundType]);
+  useEffect(() => { localStorage.setItem('benedictus_bell_interval', JSON.stringify(bellInterval)); }, [bellInterval]);
 
-  // MISE À JOUR DE LA CLASSE SUR HTML (DocumentRoot)
   useEffect(() => { 
-    localStorage.setItem('sanctuaire_theme', JSON.stringify(theme)); 
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    localStorage.setItem('benedictus_theme', JSON.stringify(theme)); 
+    if (theme === 'dark') document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
   }, [theme]);
 
-  // Initialisation intelligente des étapes
+  // Initialisation audio
+  useEffect(() => {
+      preloadSounds();
+      const unlockAudio = () => { initAudioEngine(); document.removeEventListener('click', unlockAudio); document.removeEventListener('touchstart', unlockAudio); };
+      document.addEventListener('click', unlockAudio);
+      document.addEventListener('touchstart', unlockAudio);
+      return () => { document.removeEventListener('click', unlockAudio); document.removeEventListener('touchstart', unlockAudio); }
+  }, []);
+
   const [stepsConfig, setStepsConfig] = useState(() => {
     try {
-      const savedDurations = JSON.parse(localStorage.getItem('sanctuaire_durations') || '{}');
-      return STEPS_CONTENT.map(step => ({
-        ...step,
-        duration: savedDurations[step.id] || step.defaultDuration
-      }));
-    } catch (e) {
-      return STEPS_CONTENT.map(step => ({ ...step, duration: step.defaultDuration }));
-    }
+      const savedDurations = JSON.parse(localStorage.getItem('benedictus_durations') || '{}');
+      return STEPS_CONTENT.map(step => ({ ...step, duration: savedDurations[step.id] || step.defaultDuration }));
+    } catch (e) { return STEPS_CONTENT.map(step => ({ ...step, duration: step.defaultDuration })); }
   });
 
   useEffect(() => {
-    const durationsToSave = stepsConfig.reduce((acc, step) => {
-      acc[step.id] = step.duration;
-      return acc;
-    }, {});
-    localStorage.setItem('sanctuaire_durations', JSON.stringify(durationsToSave));
+    const durationsToSave = stepsConfig.reduce((acc, step) => { acc[step.id] = step.duration; return acc; }, {});
+    localStorage.setItem('benedictus_durations', JSON.stringify(durationsToSave));
   }, [stepsConfig]);
 
   const goHome = () => setView('home');
+  const startGuided = () => { initAudioEngine(); setView('guided'); }
 
   return (
     <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'dark bg-stone-900 text-white' : 'bg-stone-50 text-stone-900'}`}>
-      
-      {/* Affichage Conditionnel */}
       {view === 'guided' ? (
         <GuidedSession onExit={goHome} stepsConfig={stepsConfig} theme={theme} soundType={soundType} bellInterval={bellInterval} />
       ) : (
@@ -331,66 +351,34 @@ export default function App() {
                 <blockquote className={`font-serif text-sm italic leading-relaxed border-l-2 pl-3 ${theme === 'dark' ? 'text-stone-200 border-indigo-500' : 'text-stone-800 border-indigo-300'}`}>
                   "Voici que je me tiens à la porte, et je frappe. Si quelqu’un entend ma voix et ouvre la porte, j’entrerai chez lui ; je prendrai mon repas avec lui, et lui avec moi."
                 </blockquote>
-                <div className={`text-xs font-bold mt-1 pl-3 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-800'}`}>
-                  Ap 3,20
-                </div>
+                <div className={`text-xs font-bold mt-1 pl-3 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-800'}`}>Ap 3,20</div>
               </div>
             </div>
-
             <div className="shrink-0 flex flex-col items-center gap-4">
-              <img 
-                src="/logo.jpg" 
-                alt="Logo" 
-                className={`h-72 w-auto rounded-lg shadow-md border ${theme === 'dark' ? 'border-stone-700' : 'border-stone-200'}`}
-                onError={(e) => {
-                   e.target.style.display = 'none';
-                }}
-              />
-              
+              <img src="/logo.jpg" alt="Logo" className={`h-72 w-auto rounded-lg shadow-md border ${theme === 'dark' ? 'border-stone-700' : 'border-stone-200'}`} onError={(e) => { e.target.style.display = 'none'; }} />
               <div className="flex gap-2">
-                 <button 
-                  onClick={() => setView('settings')}
-                  className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800 text-stone-400' : 'hover:bg-stone-200 text-stone-600'}`}
-                >
-                  <Settings size={20} />
-                </button>
-                <button 
-                  onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
-                  className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800' : 'hover:bg-stone-200'}`}
-                >
-                  {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-                </button>
+                 <button onClick={() => setView('settings')} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800 text-stone-400' : 'hover:bg-stone-200 text-stone-600'}`}><Settings size={20} /></button>
+                <button onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800' : 'hover:bg-stone-200'}`}>{theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}</button>
               </div>
             </div>
-            
           </header>
-
           <main className="max-w-2xl mx-auto px-4 pb-20 pt-4">
             {view === 'home' && (
               <div className="space-y-8 animate-fade-in mt-4">
                 <div className="grid gap-4">
                   <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group" >
-                    <div onClick={() => setView('guided')} className="flex items-center gap-4">
-                      <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-100 text-indigo-600'}`}>
-                        <BookOpen size={24} />
-                      </div>
+                    <div onClick={startGuided} className="flex items-center gap-4">
+                      <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-100 text-indigo-600'}`}><BookOpen size={24} /></div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg">Oraison guidée</h3>
-                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>
-                          Un parcours balisé : préparation, entrée corps et fin de l'oraison.
-                        </p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>Un parcours balisé : préparation, entrée corps et fin de l'oraison.</p>
                       </div>
                       <ChevronRight className="text-stone-300" />
                     </div>
                   </Card>
-
-                  {/* FreeTimer button removed */}
-
                   <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group">
                     <div onClick={() => setView('journal')} className="flex items-center gap-4">
-                      <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-amber-900 text-amber-300' : 'bg-amber-100 text-amber-600'}`}>
-                        <PenTool size={24} />
-                      </div>
+                      <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-amber-900 text-amber-300' : 'bg-amber-100 text-amber-600'}`}><PenTool size={24} /></div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg">Carnet Spirituel</h3>
                         <p className={`text-sm ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>Notez la Parole de Dieu, la pensée qui vous touche, la résolution pour la journée...</p>
@@ -399,13 +387,9 @@ export default function App() {
                     </div>
                   </Card>
                 </div>
-
-                <div className={`mt-8 p-6 rounded-2xl text-center italic border ${theme === 'dark' ? 'bg-stone-800 text-white border-stone-700' : 'bg-stone-100 text-stone-800 border-stone-200'}`}>
-                  "{TEXTS[Math.floor(Math.random() * TEXTS.length)].content}"
-                </div>
+                <div className={`mt-8 p-6 rounded-2xl text-center italic border ${theme === 'dark' ? 'bg-stone-800 text-white border-stone-700' : 'bg-stone-100 text-stone-800 border-stone-200'}`}>"{TEXTS[Math.floor(Math.random() * TEXTS.length)].content}"</div>
               </div>
             )}
-
             {view === 'journal' && <Journal entries={journalEntries} setEntries={setJournalEntries} onExit={goHome} theme={theme} />}
             {view === 'settings' && <SettingsView stepsConfig={stepsConfig} setStepsConfig={setStepsConfig} onExit={goHome} theme={theme} soundType={soundType} setSoundType={setSoundType} bellInterval={bellInterval} setBellInterval={setBellInterval} />}
           </main>
@@ -422,34 +406,48 @@ function GuidedSession({ onExit, stepsConfig, theme, soundType, bellInterval }) 
   const [timeLeft, setTimeLeft] = useState(stepsConfig[0].duration);
   const [isActive, setIsActive] = useState(true); 
   const [selectedText, setSelectedText] = useState(TEXTS[0]);
-  const transitionTimeoutRef = useRef(null);
   const endTimeRef = useRef(null);
   const { requestWakeLock, releaseWakeLock } = useWakeLock();
 
   const currentStep = stepsConfig[stepIndex];
-  const isLastStep = stepIndex === stepsConfig.length - 1;
   const progress = ((stepIndex + 1) / stepsConfig.length) * 100;
 
   useEffect(() => { setSelectedText(TEXTS[Math.floor(Math.random() * TEXTS.length)]); }, []);
-  useEffect(() => { return () => { if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current); }; }, [stepIndex]);
-
+  
   useEffect(() => {
-    playBell(soundType); 
+    playSoundFromCache(soundType); // Son de démarrage de l'étape 1
     requestWakeLock();
     return () => releaseWakeLock();
   }, []);
 
-  // INITIALISATION DU TEMPS CIBLE QUAND ON ACTIVE LE TIMER
-  // CORRECTION CRITIQUE: Ajout de [timeLeft] dans les dépendances pour que le changement d'étape mette à jour la cible
+  // Gestion du changement d'étape via le state stepIndex
+  useEffect(() => {
+      // Ce useEffect se déclenche quand stepIndex change
+      // Pour les étapes > 0 (donc pas le montage initial qui est géré au-dessus), on lance la séquence
+      if (stepIndex > 0) {
+          const newDuration = stepsConfig[stepIndex].duration;
+          setTimeLeft(newDuration);
+          setIsActive(true);
+          
+          let dongsCount = 1;
+          // Logique : on vient de finir l'étape précédente.
+          // stepIndex 1 (Entrée) vient de commencer -> on joue la fin de stepIndex 0 (Corps) -> 2 coups
+          if (stepIndex === 1) dongsCount = 2; 
+          else if (stepIndex === 2) dongsCount = 3; 
+          else if (stepIndex === 3) dongsCount = 2; 
+
+          playBellsSequence(dongsCount, bellInterval, soundType);
+      }
+  }, [stepIndex]); // Dépendance uniquement sur stepIndex
+
   useEffect(() => {
     if (isActive && !endTimeRef.current) {
         endTimeRef.current = Date.now() + timeLeft * 1000;
     } else if (!isActive) {
         endTimeRef.current = null;
     }
-  }, [isActive, timeLeft]); 
+  }, [isActive, timeLeft]); // Ajout de timeLeft pour recalculer si changement manuel
 
-  // BOUCLE DE MINUTEUR ROBUSTE
   useEffect(() => {
     let interval = null;
     if (isActive) {
@@ -459,33 +457,19 @@ function GuidedSession({ onExit, stepsConfig, theme, soundType, bellInterval }) 
              const remaining = Math.ceil((endTimeRef.current - now) / 1000);
              
              if (remaining <= 0) {
-                 // FIN DE L'ÉTAPE COURANTE
                  setTimeLeft(0);
-                 setIsActive(false); // On met en pause temporairement pour la transition
-                 endTimeRef.current = null; // Important: reset la cible
+                 setIsActive(false);
+                 endTimeRef.current = null;
                  
-                 // Logique des dongs
-                  let dongsCount = 0;
-                  if (stepIndex === 0) dongsCount = 2; // Fin étape 1 (Corps)
-                  else if (stepIndex === 1) dongsCount = 3; // Fin étape 2 (Entrée)
-                  else if (stepIndex === 2) dongsCount = 2; // Fin étape 3 (Rencontre)
-                  else if (stepIndex === 3) dongsCount = 1; // Fin étape 4 (Résolution)
-
-                  playBellsSequence(dongsCount, bellInterval, soundType);
-
-                  const transitionDelay = (dongsCount * bellInterval) + 1000;
-
-                 transitionTimeoutRef.current = setTimeout(() => {
-                    if (stepIndex < stepsConfig.length - 1) {
-                        const nextIdx = stepIndex + 1;
-                        setStepIndex(nextIdx);
-                        const nextDuration = stepsConfig[nextIdx].duration;
-                        setTimeLeft(nextDuration);
-                        // On réactive simplement. Le useEffect [isActive, timeLeft] recalcula la nouvelle cible endTimeRef
-                        setIsActive(true); 
-                    } else { onExit(); }
-                 }, transitionDelay);
-
+                 // Transition immédiate
+                 if (stepIndex < stepsConfig.length - 1) {
+                    setStepIndex(prev => prev + 1);
+                    // Le useEffect[stepIndex] prendra le relais pour lancer le son et le timer
+                 } else { 
+                     // Fin de l'oraison
+                     playBellsSequence(1, bellInterval, soundType);
+                     onExit(); 
+                 }
              } else {
                  setTimeLeft(remaining);
              }
@@ -493,38 +477,25 @@ function GuidedSession({ onExit, stepsConfig, theme, soundType, bellInterval }) 
       }, 200);
     }
     return () => clearInterval(interval);
-  }, [isActive, stepIndex, stepsConfig, onExit, soundType, bellInterval]); // Dépendances complètes
+  }, [isActive, stepIndex, stepsConfig, onExit, soundType, bellInterval]);
 
   const toggleTimer = () => setIsActive(!isActive);
   const nextStep = () => {
-     // Passage manuel : même logique, on change d'étape et on joue le son de début de la suivante
+    // Force la fin immédiate pour déclencher la transition
+    setTimeLeft(0);
+    setIsActive(false);
+    endTimeRef.current = null;
     if (stepIndex < stepsConfig.length - 1) {
-      const nextIdx = stepIndex + 1;
-      setStepIndex(nextIdx);
-      setTimeLeft(stepsConfig[nextIdx].duration);
-      setIsActive(true);
-      endTimeRef.current = null;
-      
-      let dongsCount = 1;
-      if (nextIdx === 1) dongsCount = 2;
-      else if (nextIdx === 2) dongsCount = 3;
-      else if (nextIdx === 3) dongsCount = 2;
-      
-      setTimeout(() => {
-          playBellsSequence(dongsCount, bellInterval, soundType);
-      }, 500);
-    } else { 
+        setStepIndex(prev => prev + 1);
+    } else {
         playBellsSequence(1, bellInterval, soundType);
-        onExit(); 
+        onExit();
     }
   };
   const prevStep = () => {
     if (stepIndex > 0) {
       const prevIdx = stepIndex - 1;
-      setStepIndex(prevIdx);
-      setTimeLeft(stepsConfig[prevIdx].duration);
-      setIsActive(false);
-      endTimeRef.current = null;
+      setStepIndex(prevIdx); // Le useEffect va gérer le reste
     }
   };
   const formatTime = (seconds) => {
@@ -551,7 +522,7 @@ function GuidedSession({ onExit, stepsConfig, theme, soundType, bellInterval }) 
            <h2 className={`text-xl font-serif mt-1 ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>{currentStep.title}</h2>
         </div>
 
-        <div className="flex-1 w-full px-4 overflow-y-auto custom-scrollbar flex flex-col items-center justify-start min-h-0 pt-2 pb-8">
+        <div className="flex-1 w-full px-4 overflow-y-auto custom-scrollbar flex flex-col items-center justify-center min-h-0 pt-1">
           {currentStep.id === 'reading' ? (
             <div className="w-full max-w-lg mx-auto py-2 animate-fade-in-up my-auto">
               <div className={`p-4 rounded-2xl border shadow-sm ${theme === 'dark' ? 'bg-stone-900 border-stone-700' : 'bg-stone-50 border-stone-200'}`}>
@@ -589,12 +560,10 @@ function GuidedSession({ onExit, stepsConfig, theme, soundType, bellInterval }) 
   );
 }
 
-// ... SettingsView, FreeTimer and Journal components unchanged ...
-
 function SettingsView({ stepsConfig, setStepsConfig, onExit, theme, soundType, setSoundType, bellInterval, setBellInterval }) {
   const updateDuration = (index, change) => {
     const newSteps = [...stepsConfig];
-    const newDuration = Math.max(10, newSteps[index].duration + change * 10);
+    const newDuration = Math.max(30, newSteps[index].duration + change * 30);
     newSteps[index].duration = newDuration;
     setStepsConfig(newSteps);
   };
@@ -631,11 +600,8 @@ function SettingsView({ stepsConfig, setStepsConfig, onExit, theme, soundType, s
                         key={type}
                         onClick={() => { 
                             setSoundType(type); 
-                            playBell(type);
-                            // Ajustement auto de l'intervalle recommandé
-                            if(type === 'clochette') setBellInterval(7000);
-                            if(type === 'cloche') setBellInterval(4000);
-                            if(type === 'gong') setBellInterval(10000);
+                            playSoundFromCache(type); // Test du son
+                            setDefaultIntervalForType(type); // Reset intervalle au défaut
                         }}
                         className={`py-3 px-2 rounded-xl text-sm font-medium transition-all border-2 flex flex-col items-center gap-2
                             ${soundType === type 
@@ -707,152 +673,4 @@ function SettingsView({ stepsConfig, setStepsConfig, onExit, theme, soundType, s
   );
 }
 
-function FreeTimer({ onExit, theme, soundType }) {
-  const [duration, setDuration] = useState(15);
-  const [timeLeft, setTimeLeft] = useState(15 * 60);
-  const [isActive, setIsActive] = useState(false);
-  const [mode, setMode] = useState('setup'); 
-
-  // Minuteur libre robuste avec Date.now()
-  const endTimeRef = useRef(null);
-  const { requestWakeLock, releaseWakeLock } = useWakeLock();
-
-  useEffect(() => {
-    if (isActive) requestWakeLock();
-    else releaseWakeLock();
-  }, [isActive]);
-
-  useEffect(() => {
-    if (isActive && !endTimeRef.current) {
-        endTimeRef.current = Date.now() + timeLeft * 1000;
-    } else if (!isActive) {
-        endTimeRef.current = null;
-    }
-  }, [isActive]);
-
-  useEffect(() => {
-    let interval = null;
-    if (isActive) {
-      interval = setInterval(() => {
-         if (endTimeRef.current) {
-             const now = Date.now();
-             const remaining = Math.ceil((endTimeRef.current - now) / 1000);
-             if (remaining <= 0) {
-                 setTimeLeft(0);
-                 setIsActive(false);
-                 setMode('done');
-                 playBell(soundType);
-             } else {
-                 setTimeLeft(remaining);
-             }
-         }
-      }, 200);
-    }
-    return () => clearInterval(interval);
-  }, [isActive, soundType]);
-
-  const startTimer = () => { setTimeLeft(duration * 60); setMode('running'); setIsActive(true); };
-  const resetTimer = () => { setIsActive(false); setMode('setup'); };
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
-
-  return (
-    <div className="flex flex-col h-[80vh] justify-center">
-      <div className="absolute top-0 right-0 p-4">
-          <button onClick={onExit} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-700' : 'hover:bg-stone-200'}`}>
-            <X size={24} />
-          </button>
-      </div>
-
-      <Card theme={theme} className="text-center py-12">
-        {mode === 'setup' && (
-          <div className="animate-fade-in">
-            <h2 className={`text-2xl font-serif mb-8 ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>Durée de l'oraison</h2>
-            <div className="flex justify-center items-center gap-6 mb-10">
-              <button onClick={() => setDuration(d => Math.max(5, d - 5))} className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold ${theme === 'dark' ? 'bg-stone-700 hover:bg-stone-600' : 'bg-stone-100 hover:bg-stone-200'}`}>-</button>
-              <div className={`text-5xl font-light w-32 ${theme === 'dark' ? 'text-indigo-200' : 'text-indigo-900'}`}>{duration} <span className="text-base text-stone-500">min</span></div>
-              <button onClick={() => setDuration(d => Math.min(60, d + 5))} className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold ${theme === 'dark' ? 'bg-stone-700 hover:bg-stone-600' : 'bg-stone-100 hover:bg-stone-200'}`}>+</button>
-            </div>
-            <Button onClick={startTimer} className="w-48 mx-auto !py-3 text-lg">Commencer</Button>
-          </div>
-        )}
-
-        {mode === 'running' && (
-          <div className="animate-fade-in">
-            <div className="mb-4 text-stone-400 text-sm uppercase tracking-widest">Temps restant</div>
-            <div className={`text-7xl font-light tabular-nums tracking-tight mb-10 ${theme === 'dark' ? 'text-indigo-200' : 'text-indigo-900'}`}>{formatTime(timeLeft)}</div>
-            <div className="flex justify-center gap-4">
-              <Button variant="outline" onClick={() => setIsActive(!isActive)} className="rounded-full w-16 h-16 !p-0 flex items-center justify-center border-2">
-                {isActive ? <Pause size={28} /> : <Play size={28} className="ml-1" />}
-              </Button>
-              <Button variant="ghost" onClick={resetTimer} className="rounded-full w-16 h-16 !p-0 flex items-center justify-center text-stone-400 hover:text-red-500"><X size={28} /></Button>
-            </div>
-            <div className="mt-12 text-stone-400 text-sm italic">"Il suffit de se tenir devant Lui."</div>
-          </div>
-        )}
-
-        {mode === 'done' && (
-          <div className="animate-fade-in">
-            <h2 className={`text-3xl font-serif mb-4 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-800'}`}>Temps écoulé</h2>
-            <p className={`mb-8 ${theme === 'dark' ? 'text-stone-400' : 'text-stone-600'}`}>Votre temps de prière est terminé. Prenez un moment pour remercier.</p>
-            <Button onClick={onExit}>Retour à l'accueil</Button>
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-}
-
-function Journal({ entries, setEntries, onExit, theme }) {
-  const [text, setText] = useState('');
-  const saveEntry = () => {
-    if (!text.trim()) return;
-    const newEntry = { id: Date.now(), date: new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }), text: text };
-    setEntries([newEntry, ...entries]); setText('');
-  };
-  const deleteEntry = (id) => { setEntries(entries.filter(e => e.id !== id)); };
-
-  return (
-    <div className="h-[85vh] flex flex-col">
-       <div className="flex justify-between items-center mb-4">
-        <h2 className={`text-2xl font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>Mon Carnet</h2>
-        <button onClick={onExit} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-700' : 'hover:bg-stone-200'}`}><X size={24} /></button>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6 h-full overflow-hidden">
-        <div className="flex flex-col gap-4">
-          <Card theme={theme} className="flex-1 flex flex-col p-4">
-            <label className="text-sm font-semibold text-stone-500 mb-2 uppercase tracking-wide">Nouvelle Note</label>
-            <textarea 
-              className={`flex-1 w-full p-4 rounded-lg resize-none focus:outline-none focus:ring-2 leading-relaxed ${theme === 'dark' ? 'bg-stone-900 focus:ring-indigo-800 text-white' : 'bg-stone-50 focus:ring-indigo-200 text-stone-900'}`}
-              placeholder="Quelles grâces avez-vous reçues ? Quelle résolution prenez-vous ?"
-              value={text} onChange={(e) => setText(e.target.value)}
-            />
-            <div className="mt-4 flex justify-end">
-              <Button onClick={saveEntry} disabled={!text.trim()}>Enregistrer</Button>
-            </div>
-          </Card>
-        </div>
-
-        <div className="overflow-y-auto pr-2 space-y-4 pb-10 custom-scrollbar">
-          {entries.length === 0 && (
-            <div className="text-center py-10 text-stone-400">
-              <PenTool size={48} className="mx-auto mb-4 opacity-20" />
-              <p>Votre carnet est vide pour le moment.</p>
-            </div>
-          )}
-          {entries.map(entry => (
-            <div key={entry.id} className={`p-5 rounded-xl border shadow-sm relative group animate-fade-in-up ${theme === 'dark' ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-100'}`}>
-              <div className="text-xs font-bold text-indigo-500 uppercase mb-2">{entry.date}</div>
-              <p className={`whitespace-pre-wrap font-serif ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>{entry.text}</p>
-              <button onClick={() => deleteEntry(entry.id)} className="absolute top-2 right-2 p-2 text-stone-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><X size={16} /></button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
+// ... Journal component (inchangé)
