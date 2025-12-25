@@ -133,6 +133,14 @@ const TEXTS = [
   { source: "Matthieu 11, 28", content: "Venez à moi, vous tous qui êtes fatigués et chargés, et je vous donnerai du repos." },
   { source: "Sainte Thérèse d'Avila", content: "L'oraison n'est à mon avis qu'un commerce intime d'amitié où l'on s'entretient souvent seul à seul avec ce Dieu dont on se sait aimé." },
   { source: "Isaïe 43, 1", content: "Ne crains rien, car je te rachète, Je t'appelle par ton nom : tu es à moi !" },
+  { source: "Curé d'Ars", content: "La prière n'est autre chose qu'une union d'amour avec Dieu." },
+  { source: "Sainte Thérèse de Lisieux", content: "Pour moi, la prière, c’est un élan du cœur, c’est un simple regard jeté vers le Ciel." },
+  { source: "Mère Teresa", content: "Le fruit du silence est la prière. Le fruit de la prière est la foi." },
+  { source: "Saint François de Sales", content: "Il faut avoir un cœur pour aimer Dieu et du courage pour se renoncer à soi-même." },
+  { source: "Saint Jean de la Croix", content: "Au soir de cette vie, vous serez jugés sur l'amour." },
+  { source: "Saint Padre Pio", content: "La prière est la meilleure arme que nous ayons ; c'est une clé qui ouvre le cœur de Dieu." },
+  { source: "Sainte Catherine de Sienne", content: "Fais-toi une cellule dans ton esprit, d'où tu ne sortiras jamais." },
+  { source: "Charles de Foucauld", content: "Mon Père, je m'abandonne à toi, fais de moi ce qu'il te plaira." }
 ];
 
 // --- GESTION AUDIO AVANCÉE (Web Audio API) ---
@@ -151,7 +159,7 @@ const initAudioContext = () => {
   return audioCtx;
 };
 
-// Fallback : Synthétiseur
+// Fallback : Synthétiseur si le fichier WAV ne marche pas
 function playSynthBell(type) {
     const ctx = initAudioContext();
     if (!ctx) return;
@@ -213,8 +221,7 @@ function getSoundDuration(type) {
     if (buffer) {
         return buffer.duration;
     }
-    // Fallbacks approximatifs si fichier pas chargé (pour correspondre aux demandes)
-    // Intervalle voulu = Durée + 1s. Donc Durée = Intervalle - 1s
+    // Fallbacks si fichier pas encore chargé
     switch (type) {
         case 'clochette': return 6.0; // Intervalle 7s
         case 'cloche': return 3.0;    // Intervalle 4s
@@ -306,10 +313,8 @@ const Card = ({ children, className = '', theme }) => {
 export default function App() {
   const [view, setView] = useState('home'); 
   
-  // MISE A JOUR DU TITRE DE L'ONGLET
-  useEffect(() => {
-    document.title = "Benedictus";
-  }, []);
+  // State pour la citation du jour (évite le changement à chaque render)
+  const [dailyQuote, setDailyQuote] = useState(TEXTS[0]);
 
   // Persistance (Clés renommées en 'benedictus_')
   const [journalEntries, setJournalEntries] = useState(() => {
@@ -317,6 +322,7 @@ export default function App() {
   });
   useEffect(() => { localStorage.setItem('benedictus_journal', JSON.stringify(journalEntries)); }, [journalEntries]);
 
+  // INITIALISATION DU THÈME
   const [theme, setTheme] = useState(() => {
     try { 
       const saved = localStorage.getItem('benedictus_theme'); 
@@ -330,6 +336,9 @@ export default function App() {
       try { const saved = localStorage.getItem('benedictus_sound_type'); return saved ? JSON.parse(saved) : 'clochette'; } catch (e) { return 'clochette'; }
   });
 
+  // NOUVEAU STATE : Intervalle entre les sonneries (en ms) - supprimé de l'UI mais gardé en logique interne auto
+  // Plus besoin de state persistant pour l'intervalle car auto-calculé
+
   useEffect(() => { localStorage.setItem('benedictus_sound_type', JSON.stringify(soundType)); }, [soundType]);
 
   useEffect(() => { 
@@ -338,7 +347,11 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [theme]);
 
+  // Initialisation audio + Titre onglet + Citation aléatoire unique
   useEffect(() => {
+      document.title = "Benedictus";
+      setDailyQuote(TEXTS[Math.floor(Math.random() * TEXTS.length)]);
+      
       preloadSounds();
       const unlockAudio = () => { initAudioEngine(); document.removeEventListener('click', unlockAudio); document.removeEventListener('touchstart', unlockAudio); };
       document.addEventListener('click', unlockAudio);
@@ -349,7 +362,10 @@ export default function App() {
   const [stepsConfig, setStepsConfig] = useState(() => {
     try {
       const savedDurations = JSON.parse(localStorage.getItem('benedictus_durations') || '{}');
-      return STEPS_CONTENT.map(step => ({ ...step, duration: savedDurations[step.id] || step.defaultDuration }));
+      return STEPS_CONTENT.map(step => ({
+        ...step,
+        duration: savedDurations[step.id] || step.defaultDuration
+      }));
     } catch (e) {
       return STEPS_CONTENT.map(step => ({ ...step, duration: step.defaultDuration }));
     }
@@ -389,7 +405,7 @@ export default function App() {
                {/* 4) Boutons sous le texte */}
               <div className="flex gap-2">
                  <button onClick={() => setView('settings')} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800 text-stone-400' : 'hover:bg-stone-200 text-stone-600'}`}><Settings size={20} /></button>
-                <button onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800' : 'hover:bg-stone-200'}`}>{theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}</button>
+                 <button onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')} className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-stone-800' : 'hover:bg-stone-200'}`}>{theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}</button>
               </div>
             </div>
 
@@ -402,29 +418,37 @@ export default function App() {
             {view === 'home' && (
               <div className="space-y-8 animate-fade-in mt-4">
                 <div className="grid gap-4">
-                  <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group" >
+                  {/* BOUTON ORAISON GUIDEE MODIFIE (Icone Coeur + Taille) */}
+                  <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group !p-4" >
                     <div onClick={startGuided} className="flex items-center gap-4">
-                      <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-100 text-indigo-600'}`}><BookOpen size={24} /></div>
+                      <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-100 text-indigo-600'}`}>
+                        {/* 7) Icone Coeur */}
+                        <Heart size={24} />
+                      </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg">Oraison guidée</h3>
-                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>Un parcours balisé : préparation, entrée corps et fin de l'oraison.</p>
+                        {/* Texte explicatif supprimé */}
                       </div>
                       <ChevronRight className="text-stone-300" />
                     </div>
                   </Card>
-                  <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group">
+
+                  {/* BOUTON CARNET SPIRITUEL MODIFIE (Taille) */}
+                  <Card theme={theme} className="cursor-pointer hover:border-indigo-300 transition-colors group !p-4">
                     <div onClick={() => setView('journal')} className="flex items-center gap-4">
                       <div className={`p-3 rounded-full transition-transform group-hover:scale-110 ${theme === 'dark' ? 'bg-amber-900 text-amber-300' : 'bg-amber-100 text-amber-600'}`}><PenTool size={24} /></div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg">Carnet Spirituel</h3>
-                        <p className={`text-sm ${theme === 'dark' ? 'text-stone-300' : 'text-stone-600'}`}>Notez la Parole de Dieu, la pensée qui vous touche, la résolution pour la journée...</p>
+                         {/* Texte explicatif supprimé */}
                       </div>
                       <ChevronRight className="text-stone-300" />
                     </div>
                   </Card>
                 </div>
+
                 <div className={`mt-8 p-6 rounded-2xl text-center italic border ${theme === 'dark' ? 'bg-stone-800 text-white border-stone-700' : 'bg-stone-100 text-stone-800 border-stone-200'}`}>
-                  "{TEXTS[Math.floor(Math.random() * TEXTS.length)].content}"
+                  "{dailyQuote.content}"
+                  <div className={`text-xs font-bold mt-2 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-800'}`}>— {dailyQuote.source}</div>
                 </div>
               </div>
             )}
@@ -651,7 +675,7 @@ function SettingsView({ stepsConfig, setStepsConfig, onExit, theme, soundType, s
     </div>
   );
 }
-
+// ... Journal component unchanged
 function Journal({ entries, setEntries, onExit, theme }) {
   const [text, setText] = useState('');
   const saveEntry = () => {
